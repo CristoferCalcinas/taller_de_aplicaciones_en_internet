@@ -2,7 +2,10 @@ package com.uab.taller.store.controller;
 
 import com.uab.taller.store.domain.User;
 import com.uab.taller.store.domain.dto.request.UserRequest;
-import com.uab.taller.store.service.IUserService;
+import com.uab.taller.store.usecase.DeleteUserUseCase;
+import com.uab.taller.store.usecase.GetUserUseCase;
+import com.uab.taller.store.usecase.GetUsersUseCase;
+import com.uab.taller.store.usecase.PostUserUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -12,33 +15,34 @@ import java.util.List;
 @RequestMapping(value = "/users")
 public class UserController {
     @Autowired
-    IUserService userService;
+    GetUsersUseCase getUsersUseCase;
 
+    @Autowired
+    GetUserUseCase getUserUseCase;
+
+    @Autowired
+    DeleteUserUseCase deleteUserUseCase;
+
+    @Autowired
+    PostUserUseCase postUserUseCase;
 
     @GetMapping
     public List<User> getAll() {
-        return userService.getAll();
+        return getUsersUseCase.getAllUsers();
     }
 
     @GetMapping("/{id}")
     public User getById(@PathVariable Long id) {
-        return userService.getById(id);
+     return getUserUseCase.getByUserId(id);
     }
 
     @DeleteMapping("/{id}")
-    public void delteById(@PathVariable Long id) {
-        userService.deleteById(id);
-        return ;
+    public void deleteById(@PathVariable Long id) {
+        deleteUserUseCase.deleteUserById(id);
     }
 
     @PostMapping
-    public User create(@RequestBody UserRequest userRequest) {
-        User user = new User();
-        user.setName(userRequest.getName());
-        user.setLastName(userRequest.getEmail());
-        user.setEmail(userRequest.getEmail());
-        user.setPassword(userRequest.getPassword());
-        return userService.save(user);
+    public User save(@RequestBody UserRequest userRequest) {
+        return postUserUseCase.save(userRequest);
     }
-
 }
