@@ -38,14 +38,18 @@ public class AccountServiceImp implements IAccountService{
     @Override
     public int getLastCreatedCardNumber() {
         List<Account> allAccounts = accountRepository.findAll();
-        Account lastAccount = allAccounts.get(allAccounts.size()-1);
-        // System.out.println(lastAccount.getId());
+        if (!allAccounts.isEmpty()) {
+            Account lastAccount = allAccounts.get(allAccounts.size()-1);
+            // System.out.println(lastAccount.getId());
 
-        int lastCardNumber = lastAccount.getNumber();
-        if (lastCardNumber == 0){
+            int lastCardNumber = lastAccount.getNumber();
+            if (lastCardNumber == 0){
+                return 1000010000;
+            }
+            return lastAccount.getNumber() ;
+        }else {
             return 1000010000;
         }
-        return lastAccount.getNumber() ;
     }
 
     @Override
