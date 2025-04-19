@@ -1,11 +1,11 @@
 package com.uab.taller.store.controller;
 
 import com.uab.taller.store.domain.User;
-import com.uab.taller.store.domain.dto.request.UserRequest;
-import com.uab.taller.store.usecase.DeleteUserUseCase;
-import com.uab.taller.store.usecase.GetUserUseCase;
-import com.uab.taller.store.usecase.GetUsersUseCase;
-import com.uab.taller.store.usecase.PostUserUseCase;
+import com.uab.taller.store.domain.dto.request.CreateUserRequest;
+import com.uab.taller.store.usecase.user.DeleteUserUseCase;
+import com.uab.taller.store.usecase.user.GetUserUseCase;
+import com.uab.taller.store.usecase.user.GetUsersUseCase;
+import com.uab.taller.store.usecase.user.CreateUserUseCase;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 
@@ -24,7 +24,7 @@ public class UserController {
     DeleteUserUseCase deleteUserUseCase;
 
     @Autowired
-    PostUserUseCase postUserUseCase;
+    CreateUserUseCase createUserUseCase;
 
     @GetMapping
     public List<User> getAll() {
@@ -42,7 +42,7 @@ public class UserController {
     }
 
     @PostMapping
-    public User save(@RequestBody UserRequest userRequest) {
-        return postUserUseCase.save(userRequest);
+    public User save(@RequestBody CreateUserRequest createUserRequest) {
+        return createUserUseCase.save(createUserRequest);
     }
 }

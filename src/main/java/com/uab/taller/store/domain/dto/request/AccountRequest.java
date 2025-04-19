@@ -5,7 +5,8 @@ import lombok.Setter;
 
 @Getter
 @Setter
-public class UserRequest {
-    String email;
-    String password;
+public class AccountRequest {
+    int number;
+    double saldo;
+    String type;
 }

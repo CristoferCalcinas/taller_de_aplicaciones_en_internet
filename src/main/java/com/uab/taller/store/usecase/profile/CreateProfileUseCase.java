@@ -1,4 +1,4 @@
-package com.uab.taller.store.usecase;
+package com.uab.taller.store.usecase.profile;
 
 import com.uab.taller.store.domain.Profile;
 import com.uab.taller.store.domain.dto.request.ProfileRequest;

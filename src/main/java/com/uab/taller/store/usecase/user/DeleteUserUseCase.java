@@ -1,4 +1,4 @@
-package com.uab.taller.store.usecase;
+package com.uab.taller.store.usecase.user;
 
 import com.uab.taller.store.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
