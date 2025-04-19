@@ -1,6 +1,7 @@
 package com.uab.taller.store.controller;
 
 import com.uab.taller.store.domain.Account;
+import com.uab.taller.store.domain.dto.request.AccountPostRequest;
 import com.uab.taller.store.domain.dto.request.AccountRequest;
 import com.uab.taller.store.usecase.account.*;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -47,7 +48,7 @@ public class AccountController {
     }
 
     @PutMapping
-    public Account updateAccountById(@RequestBody Account account) {
+    public Account updateAccountById(@RequestBody AccountPostRequest account) {
         return updateAccountUseCase.updateAccount(account);
     }
 }
