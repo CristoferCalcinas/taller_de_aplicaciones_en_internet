@@ -1,12 +1,16 @@
 package com.uab.taller.store.usecase.user;
 
+import com.uab.taller.store.domain.Account;
 import com.uab.taller.store.domain.Profile;
 import com.uab.taller.store.domain.User;
 import com.uab.taller.store.domain.dto.request.CreateUserRequest;
+import com.uab.taller.store.service.IAccountService;
 import com.uab.taller.store.service.IProfileService;
 import com.uab.taller.store.service.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.ArrayList;
 
 @Service
 public class CreateUserUseCase {
@@ -15,6 +19,9 @@ public class CreateUserUseCase {
 
     @Autowired
     private IProfileService profileService;
+
+    @Autowired
+    private IAccountService accountService;
 
     public User save(CreateUserRequest createUserRequest) {
         Profile profile = new Profile();
@@ -29,8 +36,23 @@ public class CreateUserUseCase {
         user.setEmail(createUserRequest.getEmail());
         user.setPassword(createUserRequest.getPassword());
         user.setProfile(profile$);
+        user.setAccounts(new ArrayList<>());
 
-        return userService.save(user);
+        User savedUser = userService.save(user);
+
+        if (createUserRequest.getSaldo() != null && createUserRequest.getSaldo() >= 0.0 && createUserRequest.getType() != null && !createUserRequest.getType().isEmpty()) {
+            Account account = new Account();
+            account.setSaldo(createUserRequest.getSaldo());
+            account.setType(createUserRequest.getType());
+            account.setUser(savedUser);
+
+            Account savedAccount = accountService.save(account);
+            savedUser.getAccounts().add(savedAccount);
+
+            savedUser = userService.save(savedUser);
+        }
+
+        return savedUser;
     }
 
 }

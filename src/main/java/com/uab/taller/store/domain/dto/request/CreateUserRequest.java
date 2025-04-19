@@ -14,4 +14,8 @@ public class CreateUserRequest {
     String lastName;
     String gender;
     Date birthDate;
+
+    // opcional si se quiere crear un usuario y cuenta
+    Double saldo;
+    String type;
 }
