@@ -9,14 +9,18 @@ import org.springframework.stereotype.Service;
 @Service
 public class CreateAccountUseCase {
     @Autowired
-    IAccountService accountRepository;
+    IAccountService accountService;
 
     public Account save(AccountRequest accountRequest){
         Account account = new Account();
         account.setType(accountRequest.getType());
-        account.setNumber(accountRequest.getNumber());
         account.setSaldo(accountRequest.getSaldo());
-        return accountRepository.save(account);
+
+        int lastId = accountService.getLastCreatedCardNumber();
+
+        account.setNumber(lastId + 1);
+
+        return accountService.save(account);
     }
 
 }

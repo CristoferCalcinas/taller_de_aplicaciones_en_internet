@@ -10,4 +10,5 @@ public interface IAccountService {
     Account getById(Long id);
     void deleteById(Long id);
     Account update(Account account);
+    int getLastCreatedCardNumber();
 }
