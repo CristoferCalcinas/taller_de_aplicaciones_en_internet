@@ -16,9 +16,9 @@ public class CreateAccountUseCase {
         account.setType(accountRequest.getType());
         account.setSaldo(accountRequest.getSaldo());
 
-        int lastId = accountService.getLastCreatedCardNumber();
-
-        account.setNumber(lastId + 1);
+//        int lastId = accountService.getLastCreatedCardNumber();
+//
+//        account.setNumber(lastId + 1);
 
         return accountService.save(account);
     }

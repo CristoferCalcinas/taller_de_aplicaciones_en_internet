@@ -22,6 +22,8 @@ public class AccountServiceImp implements IAccountService{
 
     @Override
     public Account save(Account account) {
+        int lastId = getLastCreatedCardNumber();
+        account.setNumber(lastId + 1);
         return accountRepository.save(account);
     }
 
