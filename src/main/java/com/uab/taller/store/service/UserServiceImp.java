@@ -7,7 +7,7 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class UserServiceImp implements IUserService{
+public class UserServiceImp implements IUserService {
     UserRepository userRepository;
 
     public UserServiceImp(UserRepository userRepository) {
@@ -24,6 +24,10 @@ public class UserServiceImp implements IUserService{
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
+    @Override
+    public User update(User user) {
+        return userRepository.save(user);
+    }
 
     @Override
     public void deleteById(Long id) {
@@ -35,6 +39,5 @@ public class UserServiceImp implements IUserService{
     public User save(User user) {
         return userRepository.save(user);
     }
-
 
 }

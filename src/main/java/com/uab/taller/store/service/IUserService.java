@@ -9,4 +9,5 @@ public interface IUserService {
     User getById(Long id);
     void deleteById(Long id);
     User save(User user);
+    User update(User user);
 }
