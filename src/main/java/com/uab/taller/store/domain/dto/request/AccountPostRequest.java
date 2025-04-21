@@ -9,4 +9,5 @@ public class AccountPostRequest{
     Long id;
     double saldo;
     String type;
+    Long userId;
 }
