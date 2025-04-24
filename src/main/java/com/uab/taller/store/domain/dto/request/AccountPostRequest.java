@@ -7,7 +7,7 @@ import lombok.Setter;
 @Getter
 public class AccountPostRequest{
     Long id;
-    double saldo;
+    Double saldo;
     String type;
     Long userId;
 }

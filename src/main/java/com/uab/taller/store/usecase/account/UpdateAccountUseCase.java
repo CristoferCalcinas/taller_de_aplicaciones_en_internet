@@ -28,7 +28,7 @@ public class UpdateAccountUseCase {
             throw new RuntimeException("No existe la cuenta a actualizar");
         }
 
-        if (accountPostRequest.getSaldo() >= 0.0) {
+        if (accountPostRequest.getSaldo() != null && accountPostRequest.getSaldo() >= 0.0) {
             account.setSaldo(accountPostRequest.getSaldo());
         }
 
