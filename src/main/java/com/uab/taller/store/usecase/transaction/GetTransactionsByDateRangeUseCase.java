@@ -5,14 +5,15 @@ import com.uab.taller.store.repository.TransactionRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class GetTransactionsByAccountUseCase {
+public class GetTransactionsByDateRangeUseCase {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    public List<Transaction> getTransactionsByAccount(Long accountId) {
-        return transactionRepository.findByAccountId(accountId);
+    public List<Transaction> getTransactionsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
+        return transactionRepository.findByTransactionDateBetween(startDate, endDate);
     }
 }

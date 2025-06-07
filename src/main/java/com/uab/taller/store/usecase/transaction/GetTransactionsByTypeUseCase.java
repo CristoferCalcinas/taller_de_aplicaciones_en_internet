@@ -8,11 +8,11 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 
 @Service
-public class GetTransactionsByAccountUseCase {
+public class GetTransactionsByTypeUseCase {
     @Autowired
     private TransactionRepository transactionRepository;
 
-    public List<Transaction> getTransactionsByAccount(Long accountId) {
-        return transactionRepository.findByAccountId(accountId);
+    public List<Transaction> getTransactionsByType(String transactionType) {
+        return transactionRepository.findByTransactionTypeIgnoreCase(transactionType);
     }
 }

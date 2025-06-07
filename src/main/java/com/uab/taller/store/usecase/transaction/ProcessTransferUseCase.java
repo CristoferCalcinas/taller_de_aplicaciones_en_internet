@@ -17,8 +17,17 @@ public class ProcessTransferUseCase {
     private ITransactionService transactionService;
     
     @Autowired
-    private IAccountService accountService;    @Transactional
+    private IAccountService accountService;
+    
+    @Autowired
+    private ValidateTransactionUseCase validateTransactionUseCase;
+
+    @Transactional
     public Transaction processTransfer(TransferRequest transferRequest) {
+        // Validar la transacción
+        if (!validateTransactionUseCase.validateTransfer(transferRequest)) {
+            throw new RuntimeException("Transferencia inválida: verificar cuentas, saldo o datos de la transacción");
+        }
         // Obtener las cuentas
         Account sourceAccount = accountService.findById(transferRequest.getSourceAccountId());
         Account targetAccount = accountService.findById(transferRequest.getTargetAccountId());
