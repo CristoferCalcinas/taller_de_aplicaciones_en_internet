@@ -7,11 +7,16 @@ import com.uab.taller.store.repository.AccountRepository;
 import com.uab.taller.store.service.interfaces.IAccountService;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 @Service
 public class AccountServiceImp implements IAccountService {
-    AccountRepository accountRepository;
+
+    private final AccountRepository accountRepository;
 
     public AccountServiceImp(AccountRepository accountRepository) {
         this.accountRepository = accountRepository;
@@ -19,25 +24,67 @@ public class AccountServiceImp implements IAccountService {
 
     @Override
     public List<Account> findAll() {
-        return accountRepository.findAll();
+        return accountRepository.findAll().stream()
+                .filter(account -> !account.isDeleted())
+                .toList();
     }
 
     @Override
     public Account save(Account account) {
-        int lastId = getLastCreatedCardNumber();
-        // account.setNumber(lastId + 1);
+        if (account.getId() == null) {
+            // Nueva cuenta
+            if (account.getAccountNumber() == null || account.getAccountNumber().isEmpty()) {
+                account.setAccountNumber(generateAccountNumber());
+            }
+            if (account.getStatus() == null) {
+                account.setStatus("ACTIVE");
+            }
+            if (account.getBalance() == null) {
+                account.getBalance().equals(BigDecimal.ZERO);
+            }
+            account.setAddDate(LocalDateTime.now());
+            account.setAddUser("SYSTEM");
+        } else {
+            // Actualización
+            account.setChangeDate(LocalDateTime.now());
+            account.setChangeUser("SYSTEM");
+        }
         return accountRepository.save(account);
     }
 
     @Override
     public Account findById(Long id) {
         return accountRepository.findById(id)
+                .filter(account -> !account.isDeleted())
                 .orElseThrow(() -> new EntityNotFoundException("Cuenta", id));
     }
 
     @Override
     public Account update(Account account) {
-        return accountRepository.save(account);
+        if (account.getId() == null) {
+            throw new IllegalArgumentException("El ID de la cuenta es requerido para actualizar");
+        }
+
+        Account existingAccount = findById(account.getId());
+
+        // Actualizar solo los campos permitidos
+        if (account.getType() != null) {
+            existingAccount.setType(account.getType());
+        }
+        if (account.getCurrency() != null) {
+            existingAccount.setCurrency(account.getCurrency());
+        }
+        if (account.getStatus() != null) {
+            existingAccount.setStatus(account.getStatus());
+        }
+        if (account.getBalance() != null) {
+            existingAccount.setBalance(account.getBalance());
+        }
+
+        existingAccount.setChangeDate(LocalDateTime.now());
+        existingAccount.setChangeUser("SYSTEM");
+
+        return accountRepository.save(existingAccount);
     }
 
     @Override
@@ -52,20 +99,61 @@ public class AccountServiceImp implements IAccountService {
         }
     }
 
-    public int getLastCreatedCardNumber() {
-        List<Account> allAccounts = accountRepository.findAll();
-        if (!allAccounts.isEmpty()) {
-            Account lastAccount = allAccounts.get(allAccounts.size() - 1);
-            // System.out.println(lastAccount.getId());
-            return 1000010000;
+    @Override
+    public Optional<Account> findByAccountNumber(String accountNumber) {
+        return accountRepository.findByAccountNumber(accountNumber)
+                .filter(account -> !account.isDeleted());
+    }
 
-            // int lastCardNumber = lastAccount.getNumber();
-            // if (lastCardNumber == 0){
-            // return 1000010000;
-            // }
-            // return lastAccount.getNumber() ;
-        } else {
-            return 1000010000;
-        }
+    @Override
+    public List<Account> findAccountsByUserId(Long userId) {
+        return accountRepository.findByUserId(userId).stream()
+                .filter(account -> !account.isDeleted())
+                .toList();
+    }
+
+    @Override
+    public List<Account> findActiveAccountsByUserId(Long userId) {
+        return accountRepository.findByUserIdAndStatus(userId, "ACTIVE").stream()
+                .filter(account -> !account.isDeleted())
+                .toList();
+    }
+
+    @Override
+    public boolean isAccountActive(Long accountId) {
+        return accountRepository.findById(accountId)
+                .map(account -> "ACTIVE".equals(account.getStatus()) && !account.isDeleted())
+                .orElse(false);
+    }
+
+    @Override
+    public Account updateBalance(Long accountId, BigDecimal newBalance) {
+        Account account = findById(accountId);
+        account.setBalance(newBalance);
+        account.setChangeDate(LocalDateTime.now());
+        account.setChangeUser("SYSTEM_BALANCE_UPDATE");
+        return accountRepository.save(account);
+    }
+
+    @Override
+    public String generateAccountNumber() {
+        String prefix = "ACC";
+        String timestamp = String.valueOf(System.currentTimeMillis()).substring(6);
+        String randomPart = UUID.randomUUID().toString().replaceAll("-", "").substring(0, 6).toUpperCase();
+        return prefix + timestamp + randomPart;
+    }
+
+    @Override
+    public List<Account> findAccountsByType(String type) {
+        return accountRepository.findByType(type).stream()
+                .filter(account -> !account.isDeleted())
+                .toList();
+    }
+
+    @Override
+    public List<Account> findAccountsByStatus(String status) {
+        return accountRepository.findByStatus(status).stream()
+                .filter(account -> !account.isDeleted())
+                .toList();
     }
 }

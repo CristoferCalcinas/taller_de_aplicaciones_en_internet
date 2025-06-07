@@ -1,49 +1,72 @@
 package com.uab.taller.store.usecase.account;
 
 import com.uab.taller.store.domain.Account;
-import com.uab.taller.store.domain.User;
-import com.uab.taller.store.domain.dto.request.AccountPostRequest;
+import com.uab.taller.store.domain.dto.request.UpdateAccountRequest;
+import com.uab.taller.store.exception.EntityNotFoundException;
 import com.uab.taller.store.service.interfaces.IAccountService;
-import com.uab.taller.store.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 public class UpdateAccountUseCase {
-    @Autowired
-    IAccountService accountService;
 
     @Autowired
-    IUserService userService;
+    private IAccountService accountService;
 
-    public Account updateAccount(AccountPostRequest accountPostRequest) {
-        if (accountPostRequest.getId() == null) {
-            throw new RuntimeException("No existe la cuenta a actualizar");
+    @Transactional
+    public Account updateAccount(UpdateAccountRequest request) {
+        if (request.getId() == null) {
+            throw new IllegalArgumentException("El ID de la cuenta es obligatorio");
         }
 
-        Account account = accountService.findById(accountPostRequest.getId());
+        Account account = accountService.findById(request.getId());
         if (account == null) {
-            throw new RuntimeException("No existe la cuenta a actualizar");
+            throw new EntityNotFoundException("Cuenta", request.getId());
         }
 
-        // if (accountPostRequest.getSaldo() != null && accountPostRequest.getSaldo() >=
-        // 0.0) {
-        // account.setSaldo(accountPostRequest.getSaldo());
-        // }
-
-        if (accountPostRequest.getType() != null && !accountPostRequest.getType().isEmpty()) {
-            account.setType(accountPostRequest.getType());
+        // Validar que la cuenta no esté cerrada
+        if ("CLOSED".equals(account.getStatus())) {
+            throw new IllegalStateException("No se puede actualizar una cuenta cerrada");
         }
 
-        if (accountPostRequest.getUserId() != null) {
-            User user = userService.findById(accountPostRequest.getUserId());
-            if (user == null) {
-                throw new RuntimeException("Usuario no encontrado con ID: " + accountPostRequest.getUserId());
-            }
+        // Actualizar campos permitidos
+        if (request.getType() != null && !request.getType().trim().isEmpty()) {
+            account.setType(request.getType());
+        }
 
-            account.setUser(user);
+        if (request.getCurrency() != null && !request.getCurrency().trim().isEmpty()) {
+            account.setCurrency(request.getCurrency());
+        }
+
+        if (request.getBalance() != null) {
+            account.setBalance(request.getBalance());
+        }
+
+        if (request.getStatus() != null && !request.getStatus().trim().isEmpty()) {
+            // Validar transiciones de estado válidas
+            validateStatusTransition(account.getStatus(), request.getStatus());
+            account.setStatus(request.getStatus());
         }
 
         return accountService.update(account);
+    }
+
+    private void validateStatusTransition(String currentStatus, String newStatus) {
+        // ACTIVE -> SUSPENDED, CLOSED
+        // SUSPENDED -> ACTIVE, CLOSED
+        // CLOSED -> no se puede cambiar
+
+        if ("CLOSED".equals(currentStatus)) {
+            throw new IllegalStateException("No se puede cambiar el estado de una cuenta cerrada");
+        }
+
+        if (!isValidStatus(newStatus)) {
+            throw new IllegalArgumentException("Estado no válido: " + newStatus);
+        }
+    }
+
+    private boolean isValidStatus(String status) {
+        return "ACTIVE".equals(status) || "SUSPENDED".equals(status) || "CLOSED".equals(status);
     }
 }
