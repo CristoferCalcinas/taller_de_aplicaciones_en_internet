@@ -12,7 +12,10 @@ import jakarta.validation.constraints.Size;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class BeneficiaryRequest {
+public class UpdateBeneficiaryRequest {
+
+    @NotNull(message = "El ID del beneficiario es obligatorio")
+    private Long id;
 
     @NotNull(message = "El ID del usuario es obligatorio")
     private Long userId;
