@@ -1,23 +1,34 @@
 package com.uab.taller.store.domain;
 
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
+import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
-
-import java.util.Date;
 
 @Getter
 @Setter
 @Entity
-public class Profile {
+@Table(name = "profile")
+public class Profile extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    Long id;
-    String name;
-    String lastName;
-    Date birthDate;
-    String gender;
+    @Column(name = "profile_id")
+    private Long id;
+
+    @Column(nullable = false, length = 100)
+    private String name;
+
+    @Column(name = "last_name", nullable = false, length = 100)
+    private String lastName;
+
+    @Column(nullable = false, unique = true, length = 20)
+    private String ci;
+
+    @Column(length = 20)
+    private String mobile;
+
+    @Column(length = 255)
+    private String address;
+
+    @Column(length = 20)
+    private String status;
 }

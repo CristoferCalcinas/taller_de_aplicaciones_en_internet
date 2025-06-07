@@ -13,4 +13,4 @@ services:
       - MYSQL_USER=mysql_user
       - MYSQL_PASSWORD=password
     volumes:
-      - ./mysql:/var/lib/mysql
+      - ./dbdata:/var/lib/mysql
