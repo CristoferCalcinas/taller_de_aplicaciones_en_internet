@@ -6,6 +6,6 @@ import lombok.Setter;
 @Getter
 @Setter
 public class AccountRequest {
-    double saldo;
-    String type;
+    private double saldo;
+    private String type;
 }

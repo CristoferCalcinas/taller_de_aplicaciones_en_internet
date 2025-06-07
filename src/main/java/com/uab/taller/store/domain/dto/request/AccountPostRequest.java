@@ -5,9 +5,9 @@ import lombok.Setter;
 
 @Setter
 @Getter
-public class AccountPostRequest{
-    Long id;
-    Double saldo;
-    String type;
-    Long userId;
+public class AccountPostRequest {
+    private Long id;
+    private Double saldo;
+    private String type;
+    private Long userId;
 }

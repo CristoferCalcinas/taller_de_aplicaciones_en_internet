@@ -37,13 +37,14 @@ public class Account extends BaseEntity {
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false, referencedColumnName = "user_id", foreignKey = @ForeignKey(name = "FK_Account_User"))
     private User user;
-
+    @JsonIgnore
     @OneToMany(mappedBy = "sourceAccount", fetch = FetchType.LAZY)
     private List<Transaction> outgoingTransactions = new ArrayList<>();
 
+    @JsonIgnore
     @OneToMany(mappedBy = "targetAccount", fetch = FetchType.LAZY)
     private List<Transaction> incomingTransactions = new ArrayList<>();
-
+    @JsonIgnore
     @OneToMany(mappedBy = "account", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Beneficiary> accountBeneficiaries = new ArrayList<>();
 }

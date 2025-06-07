@@ -1,6 +1,8 @@
 package com.uab.taller.store.service;
 
 import com.uab.taller.store.domain.Profile;
+import com.uab.taller.store.exception.EntityDeletionException;
+import com.uab.taller.store.exception.EntityNotFoundException;
 import com.uab.taller.store.repository.ProfileRepository;
 import com.uab.taller.store.service.interfaces.IProfileService;
 import org.springframework.stereotype.Service;
@@ -27,12 +29,20 @@ public class ProfileServiceImp implements IProfileService {
 
     @Override
     public Profile findById(Long id) {
-        return profileRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        return profileRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Perfil", id));
     }
 
     @Override
     public void deleteById(Long id) {
-        profileRepository.deleteById(id);
+        if (!profileRepository.existsById(id)) {
+            throw new EntityNotFoundException("Perfil", id);
+        }
+        try {
+            profileRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new EntityDeletionException("Perfil", id, "Error durante la eliminación: " + e.getMessage());
+        }
     }
 
     @Override

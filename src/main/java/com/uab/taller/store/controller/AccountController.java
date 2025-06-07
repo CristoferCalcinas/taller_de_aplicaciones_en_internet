@@ -3,6 +3,7 @@ package com.uab.taller.store.controller;
 import com.uab.taller.store.domain.Account;
 import com.uab.taller.store.domain.dto.request.AccountPostRequest;
 import com.uab.taller.store.domain.dto.request.AccountRequest;
+import com.uab.taller.store.domain.dto.response.DeleteResponse;
 import com.uab.taller.store.usecase.account.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -44,8 +45,13 @@ public class AccountController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteAccountById(@PathVariable Long id) {
-        deleteAccountUseCase.deleteById(id);
+    public DeleteResponse deleteAccountById(@PathVariable Long id) {
+        return deleteAccountUseCase.deleteById(id);
+    }
+
+    @DeleteMapping("/{id}/force")
+    public DeleteResponse forceDeleteAccountById(@PathVariable Long id) {
+        return deleteAccountUseCase.forceDeleteById(id);
     }
 
     @PutMapping

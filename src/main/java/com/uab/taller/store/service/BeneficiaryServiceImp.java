@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.uab.taller.store.domain.Beneficiary;
+import com.uab.taller.store.exception.EntityDeletionException;
+import com.uab.taller.store.exception.EntityNotFoundException;
 import com.uab.taller.store.repository.BeneficiaryRepository;
 import com.uab.taller.store.service.interfaces.IBeneficiaryService;
 
@@ -29,15 +31,19 @@ public class BeneficiaryServiceImp implements IBeneficiaryService {
 
     @Override
     public Beneficiary findById(Long id) {
-        return repository.findById(id).orElseThrow(() -> new RuntimeException("Beneficiary not found with id: " + id));
+        return repository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Beneficiario", id));
     }
 
     @Override
     public void deleteById(Long id) {
-        if (repository.existsById(id)) {
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("Beneficiario", id);
+        }
+        try {
             repository.deleteById(id);
-        } else {
-            throw new RuntimeException("Beneficiary not found with id: " + id);
+        } catch (Exception e) {
+            throw new EntityDeletionException("Beneficiario", id, "Error durante la eliminación: " + e.getMessage());
         }
     }
 
@@ -46,7 +52,7 @@ public class BeneficiaryServiceImp implements IBeneficiaryService {
         if (repository.existsById(entity.getId())) {
             return repository.save(entity);
         } else {
-            throw new RuntimeException("Beneficiary not found with id: " + entity.getId());
+            throw new EntityNotFoundException("Beneficiario", entity.getId());
         }
     }
 }

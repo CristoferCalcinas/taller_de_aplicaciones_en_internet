@@ -17,6 +17,6 @@ public class GetBeneficiariesByUserUseCase {
     }
 
     public List<Beneficiary> getActiveBeneficiariesByUser(Long userId) {
-        return beneficiaryRepository.findByUserIdAndActiveTrue(userId);
+        return beneficiaryRepository.findByUserIdAndDeletedFalse(userId);
     }
 }

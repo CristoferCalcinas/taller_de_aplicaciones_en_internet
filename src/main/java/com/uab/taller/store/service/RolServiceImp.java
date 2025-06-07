@@ -5,6 +5,8 @@ import java.util.List;
 import org.springframework.stereotype.Service;
 
 import com.uab.taller.store.domain.Rol;
+import com.uab.taller.store.exception.EntityDeletionException;
+import com.uab.taller.store.exception.EntityNotFoundException;
 import com.uab.taller.store.repository.RolRepository;
 import com.uab.taller.store.service.interfaces.IRolService;
 
@@ -34,15 +36,18 @@ public class RolServiceImp implements IRolService {
     @Override
     public Rol findById(Long id) {
         return repository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Rol not found with id: " + id));
+                .orElseThrow(() -> new EntityNotFoundException("Rol", id));
     }
 
     @Override
     public void deleteById(Long id) {
-        if (repository.existsById(id)) {
+        if (!repository.existsById(id)) {
+            throw new EntityNotFoundException("Rol", id);
+        }
+        try {
             repository.deleteById(id);
-        } else {
-            throw new RuntimeException("Rol not found with id: " + id);
+        } catch (Exception e) {
+            throw new EntityDeletionException("Rol", id, "Error durante la eliminación: " + e.getMessage());
         }
     }
 
@@ -51,7 +56,7 @@ public class RolServiceImp implements IRolService {
         if (repository.existsById(entity.getId())) {
             return repository.save(entity);
         } else {
-            throw new RuntimeException("Rol not found with id: " + entity.getId());
+            throw new EntityNotFoundException("Rol", entity.getId());
         }
     }
 }

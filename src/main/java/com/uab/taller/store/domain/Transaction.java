@@ -1,5 +1,6 @@
 package com.uab.taller.store.domain;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
@@ -16,13 +17,14 @@ public class Transaction {
     @Column(name = "transaction_id")
     private Long id;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "source_account_id", nullable = false, referencedColumnName = "account_id", foreignKey = @ForeignKey(name = "FK_Transaction_SourceAccount"))
     private Account sourceAccount;
 
+    @JsonIgnore
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "target_account_id", nullable = true, referencedColumnName = "account_id", foreignKey = @ForeignKey(name = "FK_Transaction_TargetAccount"))
-
     private Account targetAccount;
 
     @Column(name = "transaction_type", nullable = false, length = 50)

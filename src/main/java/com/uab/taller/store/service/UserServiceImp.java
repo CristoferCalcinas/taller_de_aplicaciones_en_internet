@@ -1,6 +1,8 @@
 package com.uab.taller.store.service;
 
 import com.uab.taller.store.domain.User;
+import com.uab.taller.store.exception.EntityDeletionException;
+import com.uab.taller.store.exception.EntityNotFoundException;
 import com.uab.taller.store.repository.UserRepository;
 import com.uab.taller.store.service.interfaces.IUserService;
 import org.springframework.stereotype.Service;
@@ -28,13 +30,20 @@ public class UserServiceImp implements IUserService {
 
     @Override
     public User findById(Long id) {
-        return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+        return userRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Usuario", id));
     }
 
     @Override
     public void deleteById(Long id) {
-        userRepository.deleteById(id);
-        return;
+        if (!userRepository.existsById(id)) {
+            throw new EntityNotFoundException("Usuario", id);
+        }
+        try {
+            userRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new EntityDeletionException("Usuario", id, "Error durante la eliminación: " + e.getMessage());
+        }
     }
 
     @Override

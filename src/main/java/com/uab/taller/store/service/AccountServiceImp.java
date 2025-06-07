@@ -1,6 +1,8 @@
 package com.uab.taller.store.service;
 
 import com.uab.taller.store.domain.Account;
+import com.uab.taller.store.exception.EntityDeletionException;
+import com.uab.taller.store.exception.EntityNotFoundException;
 import com.uab.taller.store.repository.AccountRepository;
 import com.uab.taller.store.service.interfaces.IAccountService;
 import org.springframework.stereotype.Service;
@@ -29,7 +31,8 @@ public class AccountServiceImp implements IAccountService {
 
     @Override
     public Account findById(Long id) {
-        return accountRepository.findById(id).orElseThrow();
+        return accountRepository.findById(id)
+                .orElseThrow(() -> new EntityNotFoundException("Cuenta", id));
     }
 
     @Override
@@ -39,7 +42,14 @@ public class AccountServiceImp implements IAccountService {
 
     @Override
     public void deleteById(Long id) {
-        accountRepository.deleteById(id);
+        if (!accountRepository.existsById(id)) {
+            throw new EntityNotFoundException("Cuenta", id);
+        }
+        try {
+            accountRepository.deleteById(id);
+        } catch (Exception e) {
+            throw new EntityDeletionException("Cuenta", id, "Error durante la eliminación: " + e.getMessage());
+        }
     }
 
     public int getLastCreatedCardNumber() {

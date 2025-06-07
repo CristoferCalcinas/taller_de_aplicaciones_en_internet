@@ -2,6 +2,7 @@ package com.uab.taller.store.controller;
 
 import com.uab.taller.store.domain.Profile;
 import com.uab.taller.store.domain.dto.request.ProfileRequest;
+import com.uab.taller.store.domain.dto.response.DeleteResponse;
 import com.uab.taller.store.usecase.profile.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -42,8 +43,13 @@ public class ProfileController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteProfileById(@PathVariable Long id) {
-        deleteProfileUseCase.deleteById(id);
+    public DeleteResponse deleteProfileById(@PathVariable Long id) {
+        return deleteProfileUseCase.deleteById(id);
+    }
+
+    @DeleteMapping("/{id}/force")
+    public DeleteResponse forceDeleteProfileById(@PathVariable Long id) {
+        return deleteProfileUseCase.forceDeleteById(id);
     }
 
     @PutMapping

@@ -2,6 +2,7 @@ package com.uab.taller.store.controller;
 
 import com.uab.taller.store.domain.Beneficiary;
 import com.uab.taller.store.domain.dto.request.BeneficiaryRequest;
+import com.uab.taller.store.domain.dto.response.DeleteResponse;
 import com.uab.taller.store.usecase.beneficiary.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -46,8 +47,13 @@ public class BeneficiaryController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteBeneficiaryById(@PathVariable Long id) {
-        deleteBeneficiaryUseCase.deleteById(id);
+    public DeleteResponse deleteBeneficiaryById(@PathVariable Long id) {
+        return deleteBeneficiaryUseCase.deleteById(id);
+    }
+
+    @DeleteMapping("/{id}/force")
+    public DeleteResponse forceDeleteBeneficiaryById(@PathVariable Long id) {
+        return deleteBeneficiaryUseCase.forceDeleteById(id);
     }
 
     @PutMapping

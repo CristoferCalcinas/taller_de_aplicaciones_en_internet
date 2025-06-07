@@ -8,9 +8,9 @@ import java.util.Date;
 @Getter
 @Setter
 public class ProfileRequest {
-    String email;
-    String name;
-    String lastName;
-    Date birthDate;
-    String gender;
+    private String email;
+    private String name;
+    private String lastName;
+    private Date birthDate;
+    private String gender;
 }

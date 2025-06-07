@@ -17,8 +17,7 @@ public interface TransactionRepository extends JpaRepository<Transaction, Long> 
     // Buscar transacciones por tipo
     List<Transaction> findByTransactionTypeIgnoreCase(String transactionType);
 
-    // Buscar transacciones por rango de fechas
-    List<Transaction> findByTransactionDateBetween(LocalDateTime startDate, LocalDateTime endDate);
+    List<Transaction> findByDateBetween(LocalDateTime startDate, LocalDateTime endDate);
 
     // Buscar transacciones por cuenta origen
     List<Transaction> findBySourceAccountId(Long sourceAccountId);

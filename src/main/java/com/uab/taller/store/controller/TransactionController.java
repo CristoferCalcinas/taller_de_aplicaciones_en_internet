@@ -4,6 +4,7 @@ import com.uab.taller.store.domain.Transaction;
 import com.uab.taller.store.domain.dto.request.DepositRequest;
 import com.uab.taller.store.domain.dto.request.TransferRequest;
 import com.uab.taller.store.domain.dto.request.WithdrawalRequest;
+import com.uab.taller.store.domain.dto.response.DeleteResponse;
 import com.uab.taller.store.usecase.transaction.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.format.annotation.DateTimeFormat;
@@ -70,8 +71,13 @@ public class TransactionController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteTransactionById(@PathVariable Long id) {
-        deleteTransactionUseCase.deleteById(id);
+    public DeleteResponse deleteTransactionById(@PathVariable Long id) {
+        return deleteTransactionUseCase.deleteById(id);
+    }
+
+    @PostMapping("/{id}/reverse")
+    public DeleteResponse reverseTransaction(@PathVariable Long id) {
+        return deleteTransactionUseCase.reverseTransaction(id);
     }
 
     @PutMapping

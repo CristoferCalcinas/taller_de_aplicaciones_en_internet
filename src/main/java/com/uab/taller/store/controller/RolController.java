@@ -2,6 +2,7 @@ package com.uab.taller.store.controller;
 
 import com.uab.taller.store.domain.Rol;
 import com.uab.taller.store.domain.dto.request.RolRequest;
+import com.uab.taller.store.domain.dto.response.DeleteResponse;
 import com.uab.taller.store.usecase.rol.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
@@ -51,8 +52,13 @@ public class RolController {
     }
 
     @DeleteMapping("/{id}")
-    public void deleteRolById(@PathVariable Long id) {
-        deleteRolUseCase.deleteById(id);
+    public DeleteResponse deleteRolById(@PathVariable Long id) {
+        return deleteRolUseCase.deleteById(id);
+    }
+
+    @DeleteMapping("/{id}/force")
+    public DeleteResponse forceDeleteRolById(@PathVariable Long id) {
+        return deleteRolUseCase.forceDeleteById(id);
     }
 
     @PutMapping

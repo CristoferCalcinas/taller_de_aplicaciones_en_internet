@@ -14,6 +14,6 @@ public class GetTransactionsByDateRangeUseCase {
     private TransactionRepository transactionRepository;
 
     public List<Transaction> getTransactionsByDateRange(LocalDateTime startDate, LocalDateTime endDate) {
-        return transactionRepository.findByTransactionDateBetween(startDate, endDate);
+        return transactionRepository.findByDateBetween(startDate, endDate);
     }
 }
