@@ -2,10 +2,13 @@ package com.uab.taller.store.service;
 
 import java.util.List;
 
+import org.springframework.stereotype.Service;
+
 import com.uab.taller.store.domain.Transaction;
 import com.uab.taller.store.repository.TransactionRepository;
 import com.uab.taller.store.service.interfaces.ITransactionService;
 
+@Service
 public class TransactionServiceImp implements ITransactionService {
 
     TransactionRepository repository;
