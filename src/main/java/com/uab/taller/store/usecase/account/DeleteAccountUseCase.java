@@ -1,6 +1,6 @@
 package com.uab.taller.store.usecase.account;
 
-import com.uab.taller.store.service.IAccountService;
+import com.uab.taller.store.service.interfaces.IAccountService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

@@ -2,6 +2,7 @@ package com.uab.taller.store.service;
 
 import com.uab.taller.store.domain.User;
 import com.uab.taller.store.repository.UserRepository;
+import com.uab.taller.store.service.interfaces.IUserService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -16,13 +17,24 @@ public class UserServiceImp implements IUserService {
     }
 
     @Override
-    public List<User> getAll() {
+    public List<User> findAll() {
         return userRepository.findAll();
     }
 
     @Override
-    public User getById(Long id) {
+    public User save(User user) {
+        return userRepository.save(user);
+    }
+
+    @Override
+    public User findById(Long id) {
         return userRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
+    }
+
+    @Override
+    public void deleteById(Long id) {
+        userRepository.deleteById(id);
+        return;
     }
 
     @Override
@@ -34,16 +46,4 @@ public class UserServiceImp implements IUserService {
     public Optional<User> getByEmail(String email) {
         return userRepository.findByEmail(email);
     }
-
-    @Override
-    public void deleteById(Long id) {
-        userRepository.deleteById(id);
-        return;
-    }
-
-    @Override
-    public User save(User user) {
-        return userRepository.save(user);
-    }
-
 }

@@ -2,7 +2,7 @@ package com.uab.taller.store.usecase.user;
 
 import com.uab.taller.store.domain.User;
 import com.uab.taller.store.domain.dto.request.UserLoginRequest;
-import com.uab.taller.store.service.IUserService;
+import com.uab.taller.store.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 

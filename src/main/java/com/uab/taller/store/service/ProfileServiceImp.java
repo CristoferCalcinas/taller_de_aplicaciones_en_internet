@@ -2,6 +2,7 @@ package com.uab.taller.store.service;
 
 import com.uab.taller.store.domain.Profile;
 import com.uab.taller.store.repository.ProfileRepository;
+import com.uab.taller.store.service.interfaces.IProfileService;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -15,17 +16,17 @@ public class ProfileServiceImp implements IProfileService {
     }
 
     @Override
+    public List<Profile> findAll() {
+        return profileRepository.findAll();
+    }
+
+    @Override
     public Profile save(Profile profile) {
         return profileRepository.save(profile);
     }
 
     @Override
-    public List<Profile> getAll() {
-        return profileRepository.findAll();
-    }
-
-    @Override
-    public Profile getById(Long id) {
+    public Profile findById(Long id) {
         return profileRepository.findById(id).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
@@ -39,11 +40,11 @@ public class ProfileServiceImp implements IProfileService {
         if (profile == null || profile.getId() == null) {
             throw new IllegalArgumentException("Perfil o ID del perfil no puede ser nulo");
         }
-        Profile oldProfile = getById(profile.getId());
+        Profile oldProfile = findById(profile.getId());
         oldProfile.setName(profile.getName());
         oldProfile.setLastName(profile.getLastName());
-        oldProfile.setBirthDate(profile.getBirthDate());
-        oldProfile.setGender(profile.getGender());
+        // oldProfile.setBirthDate(profile.getBirthDate());
+        // oldProfile.setGender(profile.getGender());
         return profileRepository.save(oldProfile);
     }
 }

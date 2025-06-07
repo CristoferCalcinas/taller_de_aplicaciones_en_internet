@@ -1,7 +1,7 @@
 package com.uab.taller.store.usecase.user;
 
 import com.uab.taller.store.domain.User;
-import com.uab.taller.store.service.IUserService;
+import com.uab.taller.store.service.interfaces.IUserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -11,7 +11,7 @@ public class GetUserUseCase {
     IUserService userService;
 
     public User getByUserId(Long id) {
-        return userService.getById(id);
+        return userService.findById(id);
     }
 
 }
