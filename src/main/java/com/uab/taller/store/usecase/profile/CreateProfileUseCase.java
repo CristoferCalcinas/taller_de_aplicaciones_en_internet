@@ -8,15 +8,23 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class CreateProfileUseCase {
+
     @Autowired
-    IProfileService profileService;
+    private IProfileService profileService;
+
+    @Autowired
+    private ProfileMappingUseCase profileMappingUseCase;
 
     public Profile save(ProfileRequest profileRequest) {
-        Profile profile = new Profile();
-        profile.setName(profileRequest.getName());
-        profile.setLastName(profileRequest.getLastName());
-        //profile.setGender(profileRequest.getGender());
-        //profile.setBirthDate(profileRequest.getBirthDate());
+        // Usar el mapping service para convertir el DTO a entidad
+        Profile profile = profileMappingUseCase.toProfile(profileRequest);
+
+        // Establecer valores por defecto
+        if (profile.getStatus() == null || profile.getStatus().trim().isEmpty()) {
+            profile.setStatus("ACTIVE");
+        }
+
+        // Guardar el perfil
         return profileService.save(profile);
     }
 }
