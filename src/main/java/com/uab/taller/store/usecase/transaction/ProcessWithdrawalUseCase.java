@@ -15,29 +15,44 @@ import java.time.LocalDateTime;
 public class ProcessWithdrawalUseCase {
     @Autowired
     private ITransactionService transactionService;
-    
+
     @Autowired
-    private IAccountService accountService;    @Transactional
+    private IAccountService accountService;
+
+    @Autowired
+    private ValidateTransactionUseCase validateTransactionUseCase;
+
+    @Transactional
     public Transaction processWithdrawal(WithdrawalRequest withdrawalRequest) {
+        // Validar el retiro
+        if (!validateTransactionUseCase.validateWithdrawal(withdrawalRequest.getAccountId(),
+                withdrawalRequest.getAmount())) {
+            throw new RuntimeException("Retiro inválido: verificar cuenta, saldo o datos de la transacción");
+        }
+
         // Obtener la cuenta
         Account account = accountService.findById(withdrawalRequest.getAccountId());
-        
+
         // Validar que la cuenta tenga saldo suficiente
         if (account.getBalance().compareTo(withdrawalRequest.getAmount()) < 0) {
             throw new RuntimeException("Saldo insuficiente para realizar el retiro");
         }
-        
+
         // Actualizar saldo
         account.setBalance(account.getBalance().subtract(withdrawalRequest.getAmount()));
         accountService.update(account);
-        
+
         // Crear y guardar la transacción
         Transaction transaction = new Transaction();
         transaction.setSourceAccount(account);
         transaction.setAmount(withdrawalRequest.getAmount());
         transaction.setTransactionType("WITHDRAWAL");
         transaction.setDate(LocalDateTime.now());
-        
+        transaction.setDescription(withdrawalRequest.getDescription());
+        transaction.setReference(withdrawalRequest.getReference());
+        transaction.setStatus("COMPLETED");
+        transaction.setCurrency("BOB");
+
         return transactionService.save(transaction);
     }
 }

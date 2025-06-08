@@ -15,24 +15,38 @@ import java.time.LocalDateTime;
 public class ProcessDepositUseCase {
     @Autowired
     private ITransactionService transactionService;
-    
+
     @Autowired
-    private IAccountService accountService;    @Transactional
+    private IAccountService accountService;
+
+    @Autowired
+    private ValidateTransactionUseCase validateTransactionUseCase;
+
+    @Transactional
     public Transaction processDeposit(DepositRequest depositRequest) {
+        // Validar el depósito
+        if (!validateTransactionUseCase.validateDeposit(depositRequest.getAccountId(), depositRequest.getAmount())) {
+            throw new RuntimeException("Depósito inválido: verificar cuenta y datos de la transacción");
+        }
+
         // Obtener la cuenta
         Account account = accountService.findById(depositRequest.getAccountId());
-        
+
         // Actualizar saldo
         account.setBalance(account.getBalance().add(depositRequest.getAmount()));
         accountService.update(account);
-        
+
         // Crear y guardar la transacción
         Transaction transaction = new Transaction();
         transaction.setSourceAccount(account);
         transaction.setAmount(depositRequest.getAmount());
         transaction.setTransactionType("DEPOSIT");
         transaction.setDate(LocalDateTime.now());
-        
+        transaction.setDescription(depositRequest.getDescription());
+        transaction.setReference(depositRequest.getReference());
+        transaction.setStatus("COMPLETED");
+        transaction.setCurrency("BOB");
+
         return transactionService.save(transaction);
     }
 }

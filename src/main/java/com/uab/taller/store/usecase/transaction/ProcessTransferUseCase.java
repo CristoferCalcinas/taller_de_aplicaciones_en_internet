@@ -15,10 +15,10 @@ import java.time.LocalDateTime;
 public class ProcessTransferUseCase {
     @Autowired
     private ITransactionService transactionService;
-    
+
     @Autowired
     private IAccountService accountService;
-    
+
     @Autowired
     private ValidateTransactionUseCase validateTransactionUseCase;
 
@@ -28,23 +28,24 @@ public class ProcessTransferUseCase {
         if (!validateTransactionUseCase.validateTransfer(transferRequest)) {
             throw new RuntimeException("Transferencia inválida: verificar cuentas, saldo o datos de la transacción");
         }
+
         // Obtener las cuentas
         Account sourceAccount = accountService.findById(transferRequest.getSourceAccountId());
         Account targetAccount = accountService.findById(transferRequest.getTargetAccountId());
-        
+
         // Validar que la cuenta origen tenga saldo suficiente
         if (sourceAccount.getBalance().compareTo(transferRequest.getAmount()) < 0) {
             throw new RuntimeException("Saldo insuficiente en la cuenta origen");
         }
-        
+
         // Actualizar saldos
         sourceAccount.setBalance(sourceAccount.getBalance().subtract(transferRequest.getAmount()));
         targetAccount.setBalance(targetAccount.getBalance().add(transferRequest.getAmount()));
-        
+
         // Guardar las cuentas actualizadas
         accountService.update(sourceAccount);
         accountService.update(targetAccount);
-        
+
         // Crear y guardar la transacción
         Transaction transaction = new Transaction();
         transaction.setSourceAccount(sourceAccount);
@@ -52,7 +53,11 @@ public class ProcessTransferUseCase {
         transaction.setAmount(transferRequest.getAmount());
         transaction.setTransactionType("TRANSFER");
         transaction.setDate(LocalDateTime.now());
-        
+        transaction.setDescription(transferRequest.getDescription());
+        transaction.setReference(transferRequest.getReference());
+        transaction.setStatus("COMPLETED");
+        transaction.setCurrency("BOB");
+
         return transactionService.save(transaction);
     }
 }

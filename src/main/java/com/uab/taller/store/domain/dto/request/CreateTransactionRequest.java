@@ -12,10 +12,16 @@ import java.math.BigDecimal;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class DepositRequest {
+public class CreateTransactionRequest {
 
-    @NotNull(message = "El ID de la cuenta es obligatorio")
-    private Long accountId;
+    @NotNull(message = "El ID de la cuenta origen es obligatorio")
+    private Long sourceAccountId;
+
+    private Long targetAccountId;
+
+    @NotBlank(message = "El tipo de transacción es obligatorio")
+    @Pattern(regexp = "^(DEPOSIT|WITHDRAWAL|TRANSFER|PAYMENT)$", message = "El tipo de transacción debe ser DEPOSIT, WITHDRAWAL, TRANSFER o PAYMENT")
+    private String transactionType;
 
     @NotNull(message = "El monto es obligatorio")
     @DecimalMin(value = "0.01", message = "El monto debe ser mayor a 0")

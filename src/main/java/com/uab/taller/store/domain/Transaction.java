@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @Getter
 @Setter
 @Table(name = "transaction")
-public class Transaction {
+public class Transaction extends BaseEntity {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     @Column(name = "transaction_id")
@@ -35,4 +35,19 @@ public class Transaction {
 
     @Column(name = "transaction_date", nullable = false)
     private LocalDateTime date;
+
+    @Column(length = 255)
+    private String description;
+
+    @Column(length = 100)
+    private String reference;
+
+    @Column(length = 500)
+    private String notes;
+
+    @Column(name = "status", length = 20, nullable = false)
+    private String status = "COMPLETED";
+
+    @Column(length = 10, nullable = false)
+    private String currency = "BOB";
 }
