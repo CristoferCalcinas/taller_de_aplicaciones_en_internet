@@ -1,0 +1,471 @@
+### Rol API Tests
+### Base URL
+@baseUrl = http://localhost:8080/api/v1/rol
+
+### Variables
+@rolId = 1
+@contentType = application/json
+
+###
+# 1. Crear un nuevo rol - ADMIN
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "ADMIN",
+  "description": "Administrador del sistema con acceso completo"
+}
+
+###
+# 2. Crear otro rol - USER
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "USER",
+  "description": "Usuario básico del sistema"
+}
+
+###
+# 3. Crear otro rol - MODERATOR
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "MODERATOR",
+  "description": "Moderador con permisos específicos"
+}
+
+###
+# 4. Intentar crear rol con nombre duplicado (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "ADMIN",
+  "description": "Otro rol administrador"
+}
+
+###
+# 5. Intentar crear rol con datos inválidos (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "",
+  "description": ""
+}
+
+###
+# 6. Intentar crear rol con nombre en minúsculas (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "manager",
+  "description": "Rol gerente"
+}
+
+###
+# 7. Intentar crear rol con nombre con espacios (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "SUPER ADMIN",
+  "description": "Super administrador"
+}
+
+###
+# 8. Crear rol con guiones bajos válido
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "SUPER_ADMIN",
+  "description": "Super administrador del sistema"
+}
+
+###
+# 9. Crear rol con descripción muy larga (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "LONG_ROLE",
+  "description": "Esta es una descripción extremadamente larga que supera los 255 caracteres permitidos para la descripción del rol. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur."
+}
+
+###
+# 10. Obtener todos los roles
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 11. Obtener rol por ID existente
+GET {{baseUrl}}/{{rolId}}
+Accept: {{contentType}}
+
+###
+# 12. Obtener rol por ID inexistente (debe fallar con 404)
+GET {{baseUrl}}/999
+Accept: {{contentType}}
+
+###
+# 13. Obtener rol por ID inválido (debe fallar con 400)
+GET {{baseUrl}}/0
+Accept: {{contentType}}
+
+###
+# 14. Obtener rol por nombre existente
+GET {{baseUrl}}/name/ADMIN
+Accept: {{contentType}}
+
+###
+# 15. Obtener rol por nombre inexistente (debe fallar con 404)
+GET {{baseUrl}}/name/INEXISTENTE
+Accept: {{contentType}}
+
+###
+# 16. Obtener rol por nombre en minúsculas (debería funcionar debido a case insensitive)
+GET {{baseUrl}}/name/admin
+Accept: {{contentType}}
+
+###
+# 17. Obtener rol por nombre vacío (debe fallar con 400)
+GET {{baseUrl}}/name/
+Accept: {{contentType}}
+
+###
+# 18. Actualizar rol existente
+PUT {{baseUrl}}/{{rolId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "ADMIN_UPDATED",
+  "description": "Administrador del sistema actualizado"
+}
+
+###
+# 19. Actualizar rol con solo nombre
+PUT {{baseUrl}}/2
+Content-Type: {{contentType}}
+
+{
+  "name": "CLIENT"
+}
+
+###
+# 20. Actualizar rol con solo descripción
+PUT {{baseUrl}}/3
+Content-Type: {{contentType}}
+
+{
+  "description": "Moderador con permisos actualizados"
+}
+
+###
+# 21. Intentar actualizar rol inexistente (debe fallar con 404)
+PUT {{baseUrl}}/999
+Content-Type: {{contentType}}
+
+{
+  "name": "NO_EXISTE",
+  "description": "Rol que no existe"
+}
+
+###
+# 22. Intentar actualizar rol con datos inválidos (debe fallar con 400)
+PUT {{baseUrl}}/{{rolId}}
+Content-Type: {{contentType}}
+
+{
+  "name": "invalid_name",
+  "description": "Nombre en minúsculas no válido"
+}
+
+###
+# 23. Intentar actualizar rol con ID inválido (debe fallar con 400)
+PUT {{baseUrl}}/0
+Content-Type: {{contentType}}
+
+{
+  "name": "INVALID_ID",
+  "description": "ID inválido"
+}
+
+###
+# 24. Intentar actualizar con nombre duplicado (debe fallar con 400)
+PUT {{baseUrl}}/2
+Content-Type: {{contentType}}
+
+{
+  "name": "ADMIN_UPDATED"
+}
+
+###
+# 25. Eliminación lógica (soft delete) de rol
+DELETE {{baseUrl}}/4
+Accept: {{contentType}}
+
+###
+# 26. Intentar eliminar rol inexistente (debe fallar con 404)
+DELETE {{baseUrl}}/999
+Accept: {{contentType}}
+
+###
+# 27. Intentar eliminar rol con ID inválido (debe fallar con 400)
+DELETE {{baseUrl}}/0
+Accept: {{contentType}}
+
+###
+# 28. Verificar que el rol eliminado lógicamente no aparece en la lista
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 29. Intentar actualizar rol eliminado lógicamente (puede fallar con 404)
+PUT {{baseUrl}}/4
+Content-Type: {{contentType}}
+
+{
+  "name": "DELETED_ROLE",
+  "description": "Intentando actualizar rol eliminado"
+}
+
+###
+# 30. Crear un nuevo rol para pruebas de eliminación física
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "TO_DELETE",
+  "description": "Rol para ser eliminado físicamente"
+}
+
+###
+# 31. Eliminación física (force delete) de rol
+DELETE {{baseUrl}}/5/force
+Accept: {{contentType}}
+
+###
+# 32. Intentar eliminación física de rol inexistente (debe fallar con 404)
+DELETE {{baseUrl}}/999/force
+Accept: {{contentType}}
+
+###
+# 33. Intentar eliminación física con ID inválido (debe fallar con 400)
+DELETE {{baseUrl}}/0/force
+Accept: {{contentType}}
+
+###
+# 34. Verificar estado final - obtener todos los roles
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 35. Crear rol con nombre mínimo válido
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "AB",
+  "description": "Rol con nombre mínimo"
+}
+
+###
+# 36. Crear rol con nombre máximo válido (50 caracteres)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "ROLE_WITH_VERY_LONG_NAME_THAT_REACHES_FIFTY_CHAR",
+  "description": "Rol con nombre de 50 caracteres"
+}
+
+###
+# 37. Intentar crear rol con nombre muy corto (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "A",
+  "description": "Nombre muy corto"
+}
+
+###
+# 38. Intentar crear rol con nombre muy largo (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "ROLE_WITH_EXTREMELY_LONG_NAME_THAT_EXCEEDS_FIFTY_CHARACTERS_LIMIT",
+  "description": "Nombre muy largo"
+}
+
+###
+# 39. Crear rol sin descripción (campo opcional)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "NO_DESCRIPTION"
+}
+
+###
+# 40. Crear rol con descripción vacía
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "EMPTY_DESC",
+  "description": ""
+}
+
+###
+# 41. Actualizar rol eliminando la descripción (null)
+PUT {{baseUrl}}/6
+Content-Type: {{contentType}}
+
+{
+  "name": "AB_UPDATED"
+}
+
+###
+# 42. Prueba de validación - nombre con caracteres especiales inválidos
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "ROLE@INVALID",
+  "description": "Rol con caracteres especiales"
+}
+
+###
+# 43. Prueba de validación - nombre con números
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "ROLE123",
+  "description": "Rol con números"
+}
+
+###
+# 44. Crear rol solo con guiones bajos
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "ROLE_WITH_UNDERSCORES_ONLY",
+  "description": "Rol solo con guiones bajos"
+}
+
+###
+# 45. Actualización parcial con descripción nula
+PUT {{baseUrl}}/7
+Content-Type: {{contentType}}
+
+{
+  "description": null
+}
+
+###
+# 46. Intentar eliminar rol del sistema (si existen validaciones especiales)
+DELETE {{baseUrl}}/1
+Accept: {{contentType}}
+
+###
+# 47. Intentar eliminación física de rol del sistema
+DELETE {{baseUrl}}/1/force
+Accept: {{contentType}}
+
+###
+# 48. Verificar comportamiento con búsqueda case insensitive adicional
+GET {{baseUrl}}/name/USER
+Accept: {{contentType}}
+
+###
+# 49. Verificar comportamiento con búsqueda case insensitive en minúsculas
+GET {{baseUrl}}/name/user
+Accept: {{contentType}}
+
+###
+# 50. Estado final del sistema - listar todos los roles
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 51. Crear múltiples roles para pruebas de concurrencia
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "CONCURRENT_1",
+  "description": "Primer rol para pruebas de concurrencia"
+}
+
+###
+# 52. Crear segundo rol concurrente
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "CONCURRENT_2",
+  "description": "Segundo rol para pruebas de concurrencia"
+}
+
+###
+# 53. Actualizar ambos roles concurrentemente
+PUT {{baseUrl}}/11
+Content-Type: {{contentType}}
+
+{
+  "name": "CONCURRENT_1_UPDATED",
+  "description": "Primera actualización concurrente"
+}
+
+###
+# 54. Segunda actualización concurrente
+PUT {{baseUrl}}/12
+Content-Type: {{contentType}}
+
+{
+  "name": "CONCURRENT_2_UPDATED",
+  "description": "Segunda actualización concurrente"
+}
+
+###
+# 55. Verificar estado después de operaciones concurrentes
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 56. Prueba de límites - crear rol con descripción al límite (255 caracteres)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "name": "LIMIT_DESC",
+  "description": "Esta es una descripción que tiene exactamente 255 caracteres para probar el límite máximo permitido en el campo descripción del rol. Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tempor incididunt ut lab."
+}
+
+###
+# 57. Eliminación lógica de rol concurrente
+DELETE {{baseUrl}}/11
+Accept: {{contentType}}
+
+###
+# 58. Eliminación física de rol concurrente
+DELETE {{baseUrl}}/12/force
+Accept: {{contentType}}
+
+###
+# 59. Verificar roles restantes después de todas las operaciones
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 60. Prueba final - obtener rol específico que debería existir
+GET {{baseUrl}}/2
+Accept: {{contentType}}

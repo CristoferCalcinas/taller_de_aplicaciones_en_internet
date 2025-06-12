@@ -1,0 +1,218 @@
+### =================================================================
+### PRUEBAS PARA LA ENTIDAD ACCOUNT - API REST
+### =================================================================
+
+### Variables de configuración
+@baseUrl = http://localhost:8080/api/v1
+@accountId = 1
+@userId = 1
+@accountNumber = ACC123456789
+
+### =================================================================
+### OPERACIONES BÁSICAS CRUD
+### =================================================================
+
+### 1. Crear una nueva cuenta
+POST {{baseUrl}}/account
+Content-Type: application/json
+
+{
+    "userId": 1,
+    "type": "SAVINGS",
+    "currency": "BOB",
+    "initialBalance": 1000.00,
+    "status": "ACTIVE"
+}
+
+### 2. Obtener todas las cuentas
+GET {{baseUrl}}/account
+
+### 3. Obtener cuenta por ID
+GET {{baseUrl}}/account/{{accountId}}
+
+### 4. Obtener cuenta por número
+GET {{baseUrl}}/account/number/{{accountNumber}}
+
+### 5. Actualizar cuenta
+PUT {{baseUrl}}/account
+Content-Type: application/json
+
+{
+    "id": 1,
+    "type": "CHECKING",
+    "currency": "USD",
+    "balance": 1500.00,
+    "status": "ACTIVE"
+}
+
+### 6. Eliminar cuenta (soft delete)
+DELETE {{baseUrl}}/account/{{accountId}}
+
+### 7. Eliminar cuenta permanentemente (solo administradores)
+DELETE {{baseUrl}}/account/{{accountId}}/force
+
+### =================================================================
+### OPERACIONES POR USUARIO
+### =================================================================
+
+### 8. Obtener todas las cuentas de un usuario
+GET {{baseUrl}}/account/user/{{userId}}
+
+### 9. Obtener solo las cuentas activas de un usuario
+GET {{baseUrl}}/account/user/{{userId}}/active
+
+### =================================================================
+### INFORMACIÓN Y RESÚMENES
+### =================================================================
+
+### 10. Obtener resumen completo de una cuenta
+GET {{baseUrl}}/account/{{accountId}}/summary
+
+### 11. Verificar si existe un número de cuenta
+GET {{baseUrl}}/account/exists/{{accountNumber}}
+
+### =================================================================
+### OPERACIONES DE ESTADO
+### =================================================================
+
+### 12. Congelar cuenta
+POST {{baseUrl}}/account/{{accountId}}/freeze
+
+### 13. Descongelar cuenta
+POST {{baseUrl}}/account/{{accountId}}/unfreeze
+
+### 14. Verificar si la cuenta está congelada
+GET {{baseUrl}}/account/{{accountId}}/frozen
+
+### =================================================================
+### OPERACIONES DE SALDO
+### =================================================================
+
+### 15. Añadir saldo a la cuenta
+POST {{baseUrl}}/account/{{accountId}}/balance/add?amount=500.00&reason=Deposito%20efectivo
+
+### 16. Restar saldo de la cuenta
+POST {{baseUrl}}/account/{{accountId}}/balance/subtract?amount=200.00&reason=Retiro%20ATM
+
+### 17. Verificar si hay saldo suficiente
+GET {{baseUrl}}/account/{{accountId}}/balance/sufficient?amount=100.00
+
+### 18. Obtener saldo actual
+GET {{baseUrl}}/account/{{accountId}}/balance
+
+### =================================================================
+### VALIDACIONES
+### =================================================================
+
+### 19. Validar creación de cuenta
+POST {{baseUrl}}/account/validate-creation?userId={{userId}}&accountType=SAVINGS&currency=BOB
+
+### 20. Validar actualización de cuenta
+POST {{baseUrl}}/account/{{accountId}}/validate-update?status=ACTIVE&balance=2000.00
+
+### 21. Validar eliminación de cuenta
+POST {{baseUrl}}/account/{{accountId}}/validate-deletion
+
+### =================================================================
+### MÉTRICAS Y REPORTES
+### =================================================================
+
+### 22. Obtener métricas de una cuenta específica
+GET {{baseUrl}}/account/{{accountId}}/metrics
+
+### 23. Obtener métricas de todas las cuentas de un usuario
+GET {{baseUrl}}/account/user/{{userId}}/metrics
+
+### =================================================================
+### ACTIVIDAD Y AUDITORÍA
+### =================================================================
+
+### 24. Obtener actividad reciente de la cuenta
+GET {{baseUrl}}/account/{{accountId}}/activity?limit=10
+
+### 25. Obtener estadísticas de actividad por período
+GET {{baseUrl}}/account/{{accountId}}/activity/stats?days=30
+
+### =================================================================
+### CASOS DE PRUEBA AVANZADOS
+### =================================================================
+
+### 26. Crear cuenta con datos mínimos
+POST {{baseUrl}}/account
+Content-Type: application/json
+
+{
+    "userId": 2,
+    "type": "CHECKING",
+    "currency": "USD"
+}
+
+### 27. Probar con cuenta inexistente
+GET {{baseUrl}}/account/999999
+
+### 28. Intentar actualizar con ID inválido
+PUT {{baseUrl}}/account
+Content-Type: application/json
+
+{
+    "id": 999999,
+    "type": "SAVINGS"
+}
+
+### 29. Verificar saldo insuficiente
+GET {{baseUrl}}/account/{{accountId}}/balance/sufficient?amount=999999.99
+
+### 30. Operación de saldo con monto negativo (debería fallar)
+POST {{baseUrl}}/account/{{accountId}}/balance/add?amount=-100.00&reason=Prueba%20negativa
+
+### =================================================================
+### PRUEBAS DE ERRORES Y VALIDACIONES
+### =================================================================
+
+### 31. Crear cuenta sin usuario (debería fallar)
+POST {{baseUrl}}/account
+Content-Type: application/json
+
+{
+    "type": "SAVINGS",
+    "currency": "BOB"
+}
+
+### 32. Crear cuenta con tipo inválido
+POST {{baseUrl}}/account
+Content-Type: application/json
+
+{
+    "userId": 1,
+    "type": "INVALID_TYPE",
+    "currency": "BOB"
+}
+
+### 33. Actualizar cuenta con estado inválido
+PUT {{baseUrl}}/account
+Content-Type: application/json
+
+{
+    "id": 1,
+    "status": "INVALID_STATUS"
+}
+
+### 34. Intentar operaciones con cuenta cerrada
+POST {{baseUrl}}/account/{{accountId}}/balance/add?amount=100.00
+
+### =================================================================
+### NOTAS DE USO:
+### 
+### 1. Reemplaza las variables {{accountId}}, {{userId}} y {{accountNumber}} 
+###    con valores reales de tu base de datos.
+### 
+### 2. Asegúrate de que el servidor esté corriendo en localhost:8080
+### 
+### 3. Algunos endpoints requieren que existan datos previos en la BD
+### 
+### 4. Los endpoints de eliminación física requieren permisos de administrador
+### 
+### 5. Para probar con diferentes usuarios/cuentas, modifica las variables
+###    al inicio del archivo
+### =================================================================
+

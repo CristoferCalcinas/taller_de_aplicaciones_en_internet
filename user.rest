@@ -1,0 +1,609 @@
+### ===============================================
+### API REST para Usuarios - Store Application
+### Pruebas completas para todos los endpoints de la entidad User
+### Base URL: http://localhost:8080/api/v1/users
+### ===============================================
+
+### Variables
+@baseUrl = http://localhost:8080/api/v1/users
+@contentType = application/json
+
+### ===============================================
+### PRUEBAS DE OBTENCIÓN DE USUARIOS
+### ===============================================
+
+### 1. Obtener todos los usuarios (solo activos)
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+### 2. Obtener usuario por ID específico
+GET {{baseUrl}}/1
+Accept: {{contentType}}
+
+### 3. Obtener usuario por ID que no existe
+GET {{baseUrl}}/999
+Accept: {{contentType}}
+
+### 4. Obtener usuario con ID inválido (menor a 1)
+GET {{baseUrl}}/0
+Accept: {{contentType}}
+
+### ===============================================
+### PRUEBAS DE CREACIÓN DE USUARIOS
+### ===============================================
+
+### 5. Crear usuario válido con datos mínimos
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.nuevo@ejemplo.com",
+  "password": "Password123",
+  "name": "Juan Carlos",
+  "lastName": "Pérez García"
+}
+
+### 6. Crear usuario completo con perfil detallado
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.completo@ejemplo.com",
+  "password": "MiPassword123",
+  "name": "María Esperanza",
+  "lastName": "González Mendoza",
+  "ci": "12345678-9",
+  "mobile": "+591 77777777",
+  "address": "Av. Ejemplo 123, La Paz, Bolivia"
+}
+
+### 7. Crear usuario con cuenta bancaria automática
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.cuenta@ejemplo.com",
+  "password": "SecurePass123",
+  "name": "Roberto",
+  "lastName": "Silva Vargas",
+  "ci": "98765432-1",
+  "mobile": "+591 78888888",
+  "address": "Calle Principal 456, Cochabamba",
+  "saldoInicial": 1500.75,
+  "tipoCuenta": "SAVINGS",
+  "moneda": "BOB"
+}
+
+### 8. Crear usuario con cuenta en USD
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.usd@ejemplo.com",
+  "password": "StrongPass123",
+  "name": "Ana María",
+  "lastName": "Torrez López",
+  "saldoInicial": 1000.00,
+  "tipoCuenta": "CHECKING",
+  "moneda": "USD"
+}
+
+### 9. Intentar crear usuario con email duplicado
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.nuevo@ejemplo.com",
+  "password": "Password123",
+  "name": "Otro",
+  "lastName": "Usuario"
+}
+
+### 10. Crear usuario con contraseña débil (debería fallar)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.debil@ejemplo.com",
+  "password": "123",
+  "name": "Usuario",
+  "lastName": "Débil"
+}
+
+### 11. Crear usuario con email inválido
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "email-invalido",
+  "password": "Password123",
+  "name": "Usuario",
+  "lastName": "Test"
+}
+
+### 12. Crear usuario sin campos obligatorios
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "",
+  "password": "",
+  "name": "",
+  "lastName": ""
+}
+
+### 13. Crear usuario con CI inválido
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.ci@ejemplo.com",
+  "password": "Password123",
+  "name": "Usuario",
+  "lastName": "Test",
+  "ci": "123"
+}
+
+### 14. Crear usuario con móvil inválido
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.movil@ejemplo.com",
+  "password": "Password123",
+  "name": "Usuario",
+  "lastName": "Test",
+  "mobile": "telefono-invalido"
+}
+
+### 15. Crear usuario con tipo de cuenta inválido
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.cuenta.invalida@ejemplo.com",
+  "password": "Password123",
+  "name": "Usuario",
+  "lastName": "Test",
+  "saldoInicial": 1000.00,
+  "tipoCuenta": "INVALID_TYPE",
+  "moneda": "BOB"
+}
+
+### ===============================================
+### PRUEBAS DE ACTUALIZACIÓN DE USUARIOS
+### ===============================================
+
+### 16. Actualizar email del usuario
+PUT {{baseUrl}}/1
+Content-Type: {{contentType}}
+
+{
+  "email": "nuevo.email@ejemplo.com"
+}
+
+### 17. Actualizar contraseña del usuario
+PUT {{baseUrl}}/1
+Content-Type: {{contentType}}
+
+{
+  "password": "NuevaPassword123"
+}
+
+### 18. Actualizar datos del perfil
+PUT {{baseUrl}}/1
+Content-Type: {{contentType}}
+
+{
+  "name": "Juan Carlos Actualizado",
+  "lastName": "Pérez García Nuevo",
+  "mobile": "+591 79999999",
+  "address": "Nueva dirección actualizada 789"
+}
+
+### 19. Actualizar estado del perfil
+PUT {{baseUrl}}/1
+Content-Type: {{contentType}}
+
+{
+  "status": "INACTIVE"
+}
+
+### 20. Actualización completa del usuario
+PUT {{baseUrl}}/1
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.actualizado@ejemplo.com",
+  "password": "ActualizedPass123",
+  "name": "Nombre Actualizado",
+  "lastName": "Apellido Actualizado",
+  "ci": "87654321-0",
+  "mobile": "+591 70000000",
+  "address": "Dirección completamente actualizada",
+  "status": "ACTIVE"
+}
+
+### 21. Intentar actualizar usuario inexistente
+PUT {{baseUrl}}/999
+Content-Type: {{contentType}}
+
+{
+  "name": "Usuario Inexistente"
+}
+
+### 22. Actualizar con email ya en uso
+PUT {{baseUrl}}/2
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.actualizado@ejemplo.com"
+}
+
+### 23. Actualizar con datos inválidos
+PUT {{baseUrl}}/1
+Content-Type: {{contentType}}
+
+{
+  "email": "email-invalido",
+  "password": "123",
+  "ci": "ci-invalido"
+}
+
+### ===============================================
+### PRUEBAS DE ELIMINACIÓN DE USUARIOS
+### ===============================================
+
+### 24. Eliminar usuario (soft delete)
+DELETE {{baseUrl}}/3
+
+### 25. Intentar eliminar usuario inexistente
+DELETE {{baseUrl}}/999
+
+### 26. Eliminar usuario con ID inválido
+DELETE {{baseUrl}}/0
+
+### 27. Eliminar usuario permanentemente (force delete)
+DELETE {{baseUrl}}/4/force
+
+### 28. Intentar eliminar permanentemente usuario inexistente
+DELETE {{baseUrl}}/999/force
+
+### ===============================================
+### PRUEBAS DE BÚSQUEDA POR EMAIL
+### ===============================================
+
+### 29. Buscar usuario por email existente
+POST {{baseUrl}}/search/email
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.nuevo@ejemplo.com"
+}
+
+### 30. Buscar usuario por email inexistente
+POST {{baseUrl}}/search/email
+Content-Type: {{contentType}}
+
+{
+  "email": "inexistente@ejemplo.com"
+}
+
+### 31. Buscar usuario con email inválido
+POST {{baseUrl}}/search/email
+Content-Type: {{contentType}}
+
+{
+  "email": "email-malformado"
+}
+
+### 32. Buscar usuario con email vacío
+POST {{baseUrl}}/search/email
+Content-Type: {{contentType}}
+
+{
+  "email": ""
+}
+
+### ===============================================
+### PRUEBAS DE AUTENTICACIÓN
+### ===============================================
+
+### 33. Login con credenciales válidas
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.nuevo@ejemplo.com",
+  "password": "Password123"
+}
+
+### 34. Login con email correcto pero contraseña incorrecta
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.nuevo@ejemplo.com",
+  "password": "PasswordIncorrecto"
+}
+
+### 35. Login con email inexistente
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "noexiste@ejemplo.com",
+  "password": "Password123"
+}
+
+### 36. Login con campos vacíos
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "",
+  "password": ""
+}
+
+### 37. Login con email inválido
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "email-invalido",
+  "password": "Password123"
+}
+
+### 38. Login con usuario eliminado
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.eliminado@ejemplo.com",
+  "password": "Password123"
+}
+
+### ===============================================
+### PRUEBAS ADMINISTRATIVAS
+### ===============================================
+
+### 39. Obtener todos los usuarios incluyendo eliminados (admin)
+GET {{baseUrl}}/admin/all
+Accept: {{contentType}}
+
+### ===============================================
+### PRUEBAS DE CASOS LÍMITE Y EDGE CASES
+### ===============================================
+
+### 40. Crear usuario con caracteres especiales en nombre
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.especial@ejemplo.com",
+  "password": "Password123",
+  "name": "José María",
+  "lastName": "Fernández-Valdés O'Connor"
+}
+
+### 41. Crear usuario con nombre muy largo
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.largo@ejemplo.com",
+  "password": "Password123",
+  "name": "NombreMuyLargoQueExcedeLosLimitesEstablecidosParaEstesCampoEnLaBaseDeDatos",
+  "lastName": "ApellidoIgualmenteLargoQueDeberiaGenerarUnError"
+}
+
+### 42. Crear usuario con saldo inicial negativo
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.negativo@ejemplo.com",
+  "password": "Password123",
+  "name": "Usuario",
+  "lastName": "Negativo",
+  "saldoInicial": -100.00,
+  "tipoCuenta": "SAVINGS"
+}
+
+### 43. Crear usuario con saldo inicial muy grande
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.millonario@ejemplo.com",
+  "password": "Password123",
+  "name": "Usuario",
+  "lastName": "Millonario",
+  "saldoInicial": 999999999999.99,
+  "tipoCuenta": "SAVINGS"
+}
+
+### 44. Actualizar solo un campo específico
+PUT {{baseUrl}}/1
+Content-Type: {{contentType}}
+
+{
+  "mobile": "+591 71111111"
+}
+
+### 45. Login después de cambio de contraseña
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.actualizado@ejemplo.com",
+  "password": "ActualizedPass123"
+}
+
+### ===============================================
+### PRUEBAS DE CONCURRENCIA Y PERFORMANCE
+### ===============================================
+
+### 46. Múltiples requests de creación simultáneos (email único)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "concurrencia1@ejemplo.com",
+  "password": "Password123",
+  "name": "Usuario",
+  "lastName": "Concurrencia1"
+}
+
+###
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "concurrencia2@ejemplo.com",
+  "password": "Password123",
+  "name": "Usuario",
+  "lastName": "Concurrencia2"
+}
+
+###
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "concurrencia3@ejemplo.com",
+  "password": "Password123",
+  "name": "Usuario",
+  "lastName": "Concurrencia3"
+}
+
+### ===============================================
+### PRUEBAS DE VALIDACIÓN AVANZADA
+### ===============================================
+
+### 47. Crear usuario con patrón de contraseña sin mayúscula
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "sin.mayuscula@ejemplo.com",
+  "password": "password123",
+  "name": "Usuario",
+  "lastName": "Test"
+}
+
+### 48. Crear usuario con patrón de contraseña sin número
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "sin.numero@ejemplo.com",
+  "password": "Password",
+  "name": "Usuario",
+  "lastName": "Test"
+}
+
+### 49. Crear usuario con patrón de contraseña sin minúscula
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "sin.minuscula@ejemplo.com",
+  "password": "PASSWORD123",
+  "name": "Usuario",
+  "lastName": "Test"
+}
+
+### 50. Crear usuario con moneda inválida
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "email": "moneda.invalida@ejemplo.com",
+  "password": "Password123",
+  "name": "Usuario",
+  "lastName": "Test",
+  "saldoInicial": 1000.00,
+  "tipoCuenta": "SAVINGS",
+  "moneda": "INVALID"
+}
+
+### ===============================================
+### PRUEBAS DE CLEANUP Y VERIFICACIÓN
+### ===============================================
+
+### 51. Verificar que usuario eliminado no aparece en listado general
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+### 52. Verificar que usuario eliminado sí aparece en listado admin
+GET {{baseUrl}}/admin/all
+Accept: {{contentType}}
+
+### 53. Intentar login con usuario eliminado
+POST {{baseUrl}}/login
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.eliminado@ejemplo.com",
+  "password": "Password123"
+}
+
+### 54. Buscar usuario eliminado por email
+POST {{baseUrl}}/search/email
+Content-Type: {{contentType}}
+
+{
+  "email": "usuario.eliminado@ejemplo.com"
+}
+
+### ===============================================
+### NOTAS PARA LAS PRUEBAS
+### ===============================================
+
+### CÓDIGOS DE RESPUESTA ESPERADOS:
+### - GET /users: 200 (OK)
+### - GET /users/{id}: 200 (OK), 404 (Not Found), 400 (Bad Request)
+### - POST /users: 201 (Created), 400 (Bad Request), 409 (Conflict)
+### - PUT /users/{id}: 200 (OK), 404 (Not Found), 400 (Bad Request), 409 (Conflict)
+### - DELETE /users/{id}: 200 (OK), 404 (Not Found), 409 (Conflict), 400 (Bad Request)
+### - DELETE /users/{id}/force: 200 (OK), 404 (Not Found), 403 (Forbidden), 400 (Bad Request)
+### - POST /users/search/email: 200 (OK), 404 (Not Found), 400 (Bad Request)
+### - POST /users/login: 200 (OK), 401 (Unauthorized), 403 (Forbidden), 400 (Bad Request), 404 (Not Found)
+### - GET /users/admin/all: 200 (OK), 403 (Forbidden), 500 (Internal Server Error)
+
+### VALIDACIONES IMPLEMENTADAS:
+### - Email único en el sistema
+### - Formato de email válido
+### - Contraseña con patrón: al menos 8 caracteres, 1 mayúscula, 1 minúscula, 1 número
+### - Nombre y apellido: solo letras y espacios, entre 2-100 caracteres
+### - CI: formato alfanumérico con guiones, 5-20 caracteres
+### - Móvil: formato internacional con números, espacios, paréntesis y guiones
+### - Dirección: máximo 255 caracteres
+### - Tipo de cuenta: SAVINGS, CHECKING, CREDIT
+### - Moneda: BOB, USD, EUR
+### - Saldo inicial: mayor o igual a 0, máximo 13 dígitos enteros y 2 decimales
+### - Estado: ACTIVE, INACTIVE, SUSPENDED, PENDING
+
+### CASOS DE USO ESPECIALES:
+### - Creación automática de cuenta bancaria al registrar usuario
+### - Eliminación lógica vs eliminación física
+### - Validación de restricciones antes de eliminar
+### - Autenticación con verificación de estado de cuenta
+### - Búsqueda por email con validaciones
+### - Actualización parcial de campos
+### - Gestión de perfiles asociados
+
+### CONSIDERACIONES DE SEGURIDAD:
+### - Las contraseñas deben cumplir patrones de seguridad
+### - Los usuarios eliminados no pueden autenticarse
+### - Los endpoints administrativos requieren permisos especiales
+### - La eliminación física es irreversible y requiere confirmación
+### - Los tokens de sesión se generan durante la autenticación
+
+### DATOS DE PRUEBA RECOMENDADOS:
+### - Crear usuarios con diferentes roles y estados
+### - Probar con datos mínimos y máximos permitidos
+### - Verificar comportamiento con caracteres especiales
+### - Simular condiciones de error y recuperación
+### - Validar respuestas en diferentes formatos de fecha

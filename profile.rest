@@ -1,0 +1,267 @@
+### Profile API Tests
+### Base URL
+@baseUrl = http://localhost:8080/api/v1/profile
+
+### Variables
+@profileId = 1
+@contentType = application/json
+
+###
+# 1. Crear un nuevo perfil
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "ci": "12345678",
+  "firstName": "Juan",
+  "lastName": "Pérez",
+  "email": "juan.perez@example.com",
+  "phone": "71234567",
+  "address": "Av. Siempre Viva 123",
+  "birthDate": "1990-05-15",
+  "gender": "MALE"
+}
+
+###
+# 2. Crear otro perfil para pruebas
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "ci": "87654321",
+  "firstName": "María",
+  "lastName": "González",
+  "email": "maria.gonzalez@example.com",
+  "phone": "79876543",
+  "address": "Calle Las Flores 456",
+  "birthDate": "1985-12-20",
+  "gender": "FEMALE"
+}
+
+###
+# 3. Intentar crear perfil con CI duplicado (debe fallar con 409)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "ci": "12345678",
+  "firstName": "Pedro",
+  "lastName": "Rodriguez",
+  "email": "pedro.rodriguez@example.com",
+  "phone": "75555555",
+  "address": "Plaza Central 789",
+  "birthDate": "1992-03-10",
+  "gender": "MALE"
+}
+
+###
+# 4. Intentar crear perfil con datos inválidos (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "ci": "",
+  "firstName": "",
+  "lastName": "García",
+  "email": "email-invalido",
+  "phone": "123",
+  "address": "",
+  "birthDate": "2030-01-01",
+  "gender": "INVALID"
+}
+
+###
+# 5. Obtener todos los perfiles
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 6. Obtener perfil por ID existente
+GET {{baseUrl}}/{{profileId}}
+Accept: {{contentType}}
+
+###
+# 7. Obtener perfil por ID inexistente (debe fallar con 404)
+GET {{baseUrl}}/999
+Accept: {{contentType}}
+
+###
+# 8. Obtener resumen de perfil por ID existente
+GET {{baseUrl}}/{{profileId}}/summary
+Accept: {{contentType}}
+
+###
+# 9. Obtener resumen de perfil por ID inexistente (debe fallar con 404)
+GET {{baseUrl}}/999/summary
+Accept: {{contentType}}
+
+###
+# 10. Actualizar perfil existente
+PUT {{baseUrl}}/{{profileId}}
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Juan Carlos",
+  "lastName": "Pérez Mendoza",
+  "email": "juan.carlos.perez@example.com",
+  "phone": "71111111",
+  "address": "Av. Siempre Viva 123 - Apt 5B",
+  "birthDate": "1990-05-15",
+  "gender": "MALE"
+}
+
+###
+# 11. Intentar actualizar perfil inexistente (debe fallar con 404)
+PUT {{baseUrl}}/999
+Content-Type: {{contentType}}
+
+{
+  "firstName": "NoExiste",
+  "lastName": "Usuario",
+  "email": "noexiste@example.com",
+  "phone": "70000000",
+  "address": "Direccion Falsa 123",
+  "birthDate": "1980-01-01",
+  "gender": "MALE"
+}
+
+###
+# 12. Intentar actualizar perfil con datos inválidos (debe fallar con 400)
+PUT {{baseUrl}}/{{profileId}}
+Content-Type: {{contentType}}
+
+{
+  "firstName": "",
+  "lastName": "",
+  "email": "email-mal-formateado",
+  "phone": "abc",
+  "address": "",
+  "birthDate": "fecha-invalida",
+  "gender": "GENERO_INEXISTENTE"
+}
+
+###
+# 13. Eliminación lógica (soft delete) de perfil
+DELETE {{baseUrl}}/{{profileId}}
+Accept: {{contentType}}
+
+###
+# 14. Intentar eliminar perfil inexistente (debe fallar con 404)
+DELETE {{baseUrl}}/999
+Accept: {{contentType}}
+
+###
+# 15. Verificar que el perfil eliminado lógicamente no aparece en la lista
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 16. Crear un nuevo perfil para pruebas de eliminación física
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "ci": "11111111",
+  "firstName": "Test",
+  "lastName": "Delete",
+  "email": "test.delete@example.com",
+  "phone": "70000001",
+  "address": "Test Address 123",
+  "birthDate": "1995-01-01",
+  "gender": "MALE"
+}
+
+###
+# 17. Eliminación física (force delete) de perfil
+DELETE {{baseUrl}}/3/force
+Accept: {{contentType}}
+
+###
+# 18. Intentar eliminación física de perfil inexistente (debe fallar con 404)
+DELETE {{baseUrl}}/999/force
+Accept: {{contentType}}
+
+###
+# 19. Verificar estado final - obtener todos los perfiles
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 20. Crear perfil con campos opcionales mínimos
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "ci": "22222222",
+  "firstName": "Ana",
+  "lastName": "López",
+  "email": "ana.lopez@example.com",
+  "gender": "FEMALE"
+}
+
+###
+# 21. Crear perfil con todos los campos llenos
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "ci": "33333333",
+  "firstName": "Carlos",
+  "lastName": "Mendoza",
+  "email": "carlos.mendoza@example.com",
+  "phone": "76543210",
+  "address": "Zona Norte, Calle 10 #456",
+  "birthDate": "1988-07-25",
+  "gender": "MALE"
+}
+
+###
+# 22. Prueba de límites - CI muy largo
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "ci": "123456789012345678901234567890",
+  "firstName": "Usuario",
+  "lastName": "CILargo",
+  "email": "ci.largo@example.com",
+  "gender": "MALE"
+}
+
+###
+# 23. Prueba de límites - Email muy largo
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "ci": "44444444",
+  "firstName": "Usuario",
+  "lastName": "EmailLargo",
+  "email": "este.es.un.email.extremadamente.largo.que.deberia.fallar.en.la.validacion@dominio.muy.largo.con.muchos.caracteres.com",
+  "gender": "FEMALE"
+}
+
+###
+# 24. Actualización parcial de perfil
+PUT {{baseUrl}}/5
+Content-Type: {{contentType}}
+
+{
+  "firstName": "Ana María",
+  "lastName": "López Vargas",
+  "email": "ana.maria.lopez@example.com",
+  "phone": "72222222",
+  "address": "Nueva Dirección 789",
+  "birthDate": "1993-08-12",
+  "gender": "FEMALE"
+}
+
+###
+# 25. Verificar perfil actualizado
+GET {{baseUrl}}/5
+Accept: {{contentType}}
+
+###
+# 26. Obtener resumen del perfil actualizado
+GET {{baseUrl}}/5/summary
+Accept: {{contentType}}

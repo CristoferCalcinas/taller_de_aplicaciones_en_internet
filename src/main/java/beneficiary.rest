@@ -1,0 +1,456 @@
+### ===============================================
+### API REST para Beneficiarios - Store Application
+### Pruebas completas para todos los endpoints de la entidad Beneficiary
+### Base URL: http://localhost:8080/api/v1/beneficiary
+### ===============================================
+
+### Variables
+@baseUrl = http://localhost:8080/api/v1/beneficiary
+@contentType = application/json
+
+### ===============================================
+### PRUEBAS DE CREACIÓN DE BENEFICIARIOS
+### ===============================================
+
+### 1. Crear beneficiario válido
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 1,
+  "accountId": 1,
+  "alias": "Cuenta Principal",
+  "description": "Mi cuenta de ahorros principal"
+}
+
+### 2. Crear beneficiario con datos mínimos (sin alias y descripción)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 2,
+  "accountId": 2
+}
+
+### 3. Crear beneficiario con alias largo
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 3,
+  "accountId": 3,
+  "alias": "Cuenta de emergencia para gastos médicos y familiares importantes que requieren atención especial",
+  "description": "Esta es una cuenta especial destinada para emergencias médicas, gastos familiares urgentes y situaciones que requieren atención financiera inmediata. Se utiliza únicamente para casos de extrema necesidad y debe mantenerse con un saldo mínimo."
+}
+
+### 4. Intentar crear beneficiario sin datos obligatorios (Error esperado)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "alias": "Sin datos obligatorios"
+}
+
+### 5. Intentar crear beneficiario con userId inválido (Error esperado)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 999999,
+  "accountId": 1,
+  "alias": "Usuario inexistente"
+}
+
+### 6. Intentar crear beneficiario con accountId inválido (Error esperado)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 1,
+  "accountId": 999999,
+  "alias": "Cuenta inexistente"
+}
+
+### ===============================================
+### PRUEBAS DE CONSULTA DE BENEFICIARIOS
+### ===============================================
+
+### 7. Obtener todos los beneficiarios
+GET {{baseUrl}}
+
+### 8. Obtener beneficiario por ID válido
+GET {{baseUrl}}/1
+
+### 9. Obtener beneficiario por ID inexistente (Error esperado)
+GET {{baseUrl}}/999999
+
+### 10. Obtener beneficiario con ID inválido (Error esperado)
+GET {{baseUrl}}/0
+
+### 11. Obtener beneficiario con ID negativo (Error esperado)
+GET {{baseUrl}}/-1
+
+### ===============================================
+### PRUEBAS DE CONSULTA POR USUARIO
+### ===============================================
+
+### 12. Obtener todos los beneficiarios de un usuario
+GET {{baseUrl}}/user/1
+
+### 13. Obtener solo beneficiarios activos de un usuario
+GET {{baseUrl}}/user/1/active
+
+### 14. Obtener beneficiarios de usuario inexistente (Error esperado)
+GET {{baseUrl}}/user/999999
+
+### 15. Obtener beneficiarios con userId inválido (Error esperado)
+GET {{baseUrl}}/user/0
+
+### 16. Obtener beneficiarios activos con userId negativo (Error esperado)
+GET {{baseUrl}}/user/-1/active
+
+### ===============================================
+### PRUEBAS DE ACTUALIZACIÓN DE BENEFICIARIOS
+### ===============================================
+
+### 17. Actualizar beneficiario completo
+PUT {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "id": 1,
+  "userId": 1,
+  "accountId": 1,
+  "alias": "Cuenta Principal Actualizada",
+  "description": "Descripción actualizada de mi cuenta principal"
+}
+
+### 18. Actualizar solo alias y descripción
+PUT {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "id": 1,
+  "userId": 1,
+  "accountId": 1,
+  "alias": "Nuevo Alias",
+  "description": "Nueva descripción"
+}
+
+### 19. Actualizar beneficiario cambiando usuario
+PUT {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "id": 1,
+  "userId": 2,
+  "accountId": 1,
+  "alias": "Cuenta transferida",
+  "description": "Cuenta transferida a otro usuario"
+}
+
+### 20. Actualizar beneficiario cambiando cuenta
+PUT {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "id": 1,
+  "userId": 1,
+  "accountId": 2,
+  "alias": "Nueva cuenta",
+  "description": "Beneficiario asociado a nueva cuenta"
+}
+
+### 21. Intentar actualizar beneficiario inexistente (Error esperado)
+PUT {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "id": 999999,
+  "userId": 1,
+  "accountId": 1,
+  "alias": "Beneficiario inexistente"
+}
+
+### 22. Intentar actualizar sin ID (Error esperado)
+PUT {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 1,
+  "accountId": 1,
+  "alias": "Sin ID"
+}
+
+### 23. Intentar actualizar con userId inexistente (Error esperado)
+PUT {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "id": 1,
+  "userId": 999999,
+  "accountId": 1,
+  "alias": "Usuario inexistente"
+}
+
+### 24. Intentar actualizar con accountId inexistente (Error esperado)
+PUT {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "id": 1,
+  "userId": 1,
+  "accountId": 999999,
+  "alias": "Cuenta inexistente"
+}
+
+### ===============================================
+### PRUEBAS DE VALIDACIÓN
+### ===============================================
+
+### 25. Validar creación de beneficiario válida
+POST {{baseUrl}}/validate-creation?userId=1&accountId=1
+
+### 26. Validar creación con usuario inexistente (Error esperado)
+POST {{baseUrl}}/validate-creation?userId=999999&accountId=1
+
+### 27. Validar creación con cuenta inexistente (Error esperado)
+POST {{baseUrl}}/validate-creation?userId=1&accountId=999999
+
+### 28. Validar creación sin parámetros (Error esperado)
+POST {{baseUrl}}/validate-creation
+
+### 29. Validar actualización de beneficiario válida
+POST {{baseUrl}}/1/validate-update?userId=2&accountId=2
+
+### 30. Validar actualización solo de usuario
+POST {{baseUrl}}/1/validate-update?userId=2
+
+### 31. Validar actualización solo de cuenta
+POST {{baseUrl}}/1/validate-update?accountId=2
+
+### 32. Validar actualización sin cambios
+POST {{baseUrl}}/1/validate-update
+
+### 33. Validar actualización de beneficiario inexistente (Error esperado)
+POST {{baseUrl}}/999999/validate-update?userId=1&accountId=1
+
+### 34. Validar actualización con usuario inexistente (Error esperado)
+POST {{baseUrl}}/1/validate-update?userId=999999&accountId=1
+
+### 35. Validar actualización con cuenta inexistente (Error esperado)
+POST {{baseUrl}}/1/validate-update?userId=1&accountId=999999
+
+### 36. Validar eliminación de beneficiario válido
+POST {{baseUrl}}/1/validate-deletion
+
+### 37. Validar eliminación de beneficiario inexistente (Error esperado)
+POST {{baseUrl}}/999999/validate-deletion
+
+### ===============================================
+### PRUEBAS DE ELIMINACIÓN
+### ===============================================
+
+### 38. Eliminar beneficiario (soft delete)
+DELETE {{baseUrl}}/1
+
+### 39. Intentar eliminar beneficiario inexistente (Error esperado)
+DELETE {{baseUrl}}/999999
+
+### 40. Intentar eliminar con ID inválido (Error esperado)
+DELETE {{baseUrl}}/0
+
+### 41. Intentar eliminar con ID negativo (Error esperado)
+DELETE {{baseUrl}}/-1
+
+### 42. Verificar que el beneficiario eliminado no aparece en consultas activas
+GET {{baseUrl}}/user/1/active
+
+### 43. Verificar que el beneficiario eliminado aparece en consultas generales
+GET {{baseUrl}}/user/1
+
+### ===============================================
+### PRUEBAS DE ELIMINACIÓN PERMANENTE
+### ===============================================
+
+### 44. Eliminar beneficiario permanentemente (force delete)
+DELETE {{baseUrl}}/2/force
+
+### 45. Intentar eliminar permanentemente beneficiario inexistente (Error esperado)
+DELETE {{baseUrl}}/999999/force
+
+### 46. Intentar eliminar permanentemente con ID inválido (Error esperado)
+DELETE {{baseUrl}}/0/force
+
+### 47. Intentar eliminar permanentemente con ID negativo (Error esperado)
+DELETE {{baseUrl}}/-1/force
+
+### 48. Verificar que el beneficiario eliminado permanentemente no aparece en ninguna consulta
+GET {{baseUrl}}/2
+
+### ===============================================
+### PRUEBAS DE CASOS LÍMITE Y EDGE CASES
+### ===============================================
+
+### 49. Crear beneficiario con alias vacío
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 1,
+  "accountId": 1,
+  "alias": "",
+  "description": "Alias vacío"
+}
+
+### 50. Crear beneficiario con descripción vacía
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 1,
+  "accountId": 1,
+  "alias": "Descripción vacía",
+  "description": ""
+}
+
+### 51. Crear beneficiario con espacios en blanco
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 1,
+  "accountId": 1,
+  "alias": "   ",
+  "description": "   "
+}
+
+### 52. Crear beneficiario con caracteres especiales
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 1,
+  "accountId": 1,
+  "alias": "Cüenta Eñe & Símbolos 123 @#$%",
+  "description": "Descripción con ñoñerías, acentós y símbolos especiales: áéíóú ¿¡!"
+}
+
+### 53. Actualizar beneficiario con null en campos opcionales
+PUT {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "id": 1,
+  "userId": 1,
+  "accountId": 1,
+  "alias": null,
+  "description": null
+}
+
+### 54. Verificar estado después de múltiples operaciones
+GET {{baseUrl}}/1
+
+### ===============================================
+### PRUEBAS DE CONCURRENCIA (Simulación)
+### ===============================================
+
+### 55. Crear múltiples beneficiarios para el mismo usuario
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 1,
+  "accountId": 3,
+  "alias": "Segunda cuenta",
+  "description": "Segunda cuenta del mismo usuario"
+}
+
+### 56. Crear múltiples beneficiarios para la misma cuenta
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 3,
+  "accountId": 1,
+  "alias": "Misma cuenta, otro usuario",
+  "description": "Otro usuario usando la misma cuenta"
+}
+
+### ===============================================
+### PRUEBAS DE RENDIMIENTO (Simulación básica)
+### ===============================================
+
+### 57. Consulta masiva de beneficiarios
+GET {{baseUrl}}
+
+### 58. Consulta múltiple por usuario
+GET {{baseUrl}}/user/1
+GET {{baseUrl}}/user/2
+GET {{baseUrl}}/user/3
+
+### ===============================================
+### PRUEBAS DE SEGURIDAD BÁSICA
+### ===============================================
+
+### 59. Intentar inyección SQL en alias (No debería afectar)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 1,
+  "accountId": 1,
+  "alias": "'; DROP TABLE beneficiary; --",
+  "description": "Intento de inyección SQL"
+}
+
+### 60. Intentar XSS en descripción (Debería ser escapado)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "userId": 1,
+  "accountId": 1,
+  "alias": "Test XSS",
+  "description": "<script>alert('XSS')</script>"
+}
+
+### ===============================================
+### PRUEBAS FINALES DE VERIFICACIÓN
+### ===============================================
+
+### 61. Verificar estado final de todos los beneficiarios
+GET {{baseUrl}}
+
+### 62. Verificar beneficiarios activos por usuario principal
+GET {{baseUrl}}/user/1/active
+
+### 63. Verificar historial completo por usuario principal
+GET {{baseUrl}}/user/1
+
+### 64. Verificar último beneficiario creado
+GET {{baseUrl}}/3
+
+### ===============================================
+### NOTAS DE PRUEBA
+### ===============================================
+### 
+### Estas pruebas cubren:
+### 1. Operaciones CRUD completas
+### 2. Validaciones de entrada
+### 3. Manejo de errores
+### 4. Casos límite
+### 5. Pruebas de seguridad básica
+### 6. Verificación de integridad de datos
+### 7. Pruebas de relaciones entre entidades
+### 8. Operaciones de soft delete y hard delete
+### 9. Validaciones de negocio
+### 
+### Para ejecutar estas pruebas:
+### 1. Asegúrese de que la aplicación esté ejecutándose en localhost:8080
+### 2. Tenga datos de usuarios y cuentas válidos en la base de datos
+### 3. Ejecute las pruebas en orden para mejores resultados
+### 4. Verifique las respuestas HTTP y los datos retornados
+### 5. Ajuste los IDs según los datos existentes en su base de datos
+### 
+### ===============================================

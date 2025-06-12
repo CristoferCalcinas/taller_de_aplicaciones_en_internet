@@ -1,0 +1,1580 @@
+### Transaction API Tests
+### Base URL
+@baseUrl = http://localhost:8080/api/v1/transaction
+
+### Variables
+@transactionId = 1
+@accountId = 1
+@sourceAccountId = 1
+@targetAccountId = 2
+@contentType = application/json
+
+# ===============================
+# ENDPOINTS PARA CREAR TRANSACCIONES
+# ===============================
+
+###
+# 1. Crear nueva transacción con DTO (endpoint principal)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "transactionType": "TRANSFER",
+  "amount": 150.00,
+  "description": "Transferencia de prueba",
+  "reference": "REF-001"
+}
+
+###
+# 2. Crear transacción de depósito
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 500.00,
+  "description": "Depósito inicial",
+  "reference": "DEP-001"
+}
+
+###
+# 3. Crear transacción de retiro
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "WITHDRAWAL",
+  "amount": 100.00,
+  "description": "Retiro cajero automático",
+  "reference": "WIT-001"
+}
+
+###
+# 4. Crear transacción de pago
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "PAYMENT",
+  "amount": 75.50,
+  "description": "Pago servicios públicos",
+  "reference": "PAY-001"
+}
+
+###
+# 5. Crear transacción (endpoint legacy)
+POST {{baseUrl}}/legacy
+Content-Type: {{contentType}}
+
+{
+  "sourceAccount": {
+    "id": {{sourceAccountId}}
+  },
+  "targetAccount": {
+    "id": {{targetAccountId}}
+  },
+  "transactionType": "TRANSFER",
+  "amount": 200.00,
+  "date": "2024-01-15T10:30:00",
+  "description": "Transferencia legacy",
+  "reference": "LEG-001",
+  "status": "COMPLETED",
+  "currency": "BOB"
+}
+
+###
+# 6. Intentar crear transacción con monto inválido (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "DEPOSIT",
+  "amount": -100.00,
+  "description": "Depósito con monto negativo"
+}
+
+###
+# 7. Intentar crear transacción con tipo inválido (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "INVALID_TYPE",
+  "amount": 100.00,
+  "description": "Transacción con tipo inválido"
+}
+
+###
+# 8. Intentar crear transacción sin cuenta origen (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "transactionType": "DEPOSIT",
+  "amount": 100.00,
+  "description": "Transacción sin cuenta origen"
+}
+
+# ===============================
+# ENDPOINTS PARA CONSULTAR TRANSACCIONES
+# ===============================
+
+###
+# 9. Obtener todas las transacciones
+GET {{baseUrl}}
+
+###
+# 10. Obtener transacción por ID
+GET {{baseUrl}}/{{transactionId}}
+
+###
+# 11. Obtener transacción con ID inexistente (debe fallar con 404)
+GET {{baseUrl}}/99999
+
+###
+# 12. Obtener transacciones por cuenta
+GET {{baseUrl}}/account/{{accountId}}
+
+###
+# 13. Obtener transacciones por cuenta inexistente (debe fallar con 404)
+GET {{baseUrl}}/account/99999
+
+###
+# 14. Obtener transacciones por rango de fechas
+GET {{baseUrl}}/date-range?startDate=2024-01-01T00:00:00&endDate=2024-12-31T23:59:59
+
+###
+# 15. Obtener transacciones con fecha inválida (debe fallar con 400)
+GET {{baseUrl}}/date-range?startDate=fecha-invalida&endDate=2024-12-31T23:59:59
+
+###
+# 16. Obtener transacciones por tipo - DEPOSIT
+GET {{baseUrl}}/type/DEPOSIT
+
+###
+# 17. Obtener transacciones por tipo - WITHDRAWAL
+GET {{baseUrl}}/type/WITHDRAWAL
+
+###
+# 18. Obtener transacciones por tipo - TRANSFER
+GET {{baseUrl}}/type/TRANSFER
+
+###
+# 19. Obtener transacciones por tipo - PAYMENT
+GET {{baseUrl}}/type/PAYMENT
+
+###
+# 20. Obtener transacciones por tipo inválido (debe fallar con 400)
+GET {{baseUrl}}/type/INVALID_TYPE
+
+# ===============================
+# ENDPOINTS PARA OPERACIONES FINANCIERAS
+# ===============================
+
+###
+# 21. Procesar transferencia entre cuentas
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "amount": 250.00,
+  "description": "Transferencia entre cuentas propias",
+  "reference": "TRF-001"
+}
+
+###
+# 22. Procesar depósito
+POST {{baseUrl}}/deposit
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{accountId}},
+  "amount": 1000.00,
+  "description": "Depósito en efectivo",
+  "reference": "DEP-002"
+}
+
+###
+# 23. Procesar retiro
+POST {{baseUrl}}/withdrawal
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{accountId}},
+  "amount": 200.00,
+  "description": "Retiro en cajero",
+  "reference": "WIT-002"
+}
+
+###
+# 24. Intentar transferencia con mismo origen y destino (debe fallar con 422)
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "targetAccountId": {{accountId}},
+  "amount": 100.00,
+  "description": "Transferencia a misma cuenta",
+  "reference": "TRF-INVALID"
+}
+
+###
+# 25. Intentar transferencia con saldo insuficiente (debe fallar con 422)
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "amount": 999999.00,
+  "description": "Transferencia con saldo insuficiente",
+  "reference": "TRF-INSUFFICIENT"
+}
+
+###
+# 26. Intentar depósito en cuenta inexistente (debe fallar con 404)
+POST {{baseUrl}}/deposit
+Content-Type: {{contentType}}
+
+{
+  "accountId": 99999,
+  "amount": 100.00,
+  "description": "Depósito en cuenta inexistente",
+  "reference": "DEP-INVALID"
+}
+
+###
+# 27. Intentar retiro con saldo insuficiente (debe fallar con 422)
+POST {{baseUrl}}/withdrawal
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{accountId}},
+  "amount": 999999.00,
+  "description": "Retiro con saldo insuficiente",
+  "reference": "WIT-INSUFFICIENT"
+}
+
+# ===============================
+# ENDPOINTS PARA GESTIÓN DE TRANSACCIONES
+# ===============================
+
+###
+# 28. Actualizar transacción (solo campos permitidos)
+PUT {{baseUrl}}/{{transactionId}}
+Content-Type: {{contentType}}
+
+{
+  "id": {{transactionId}},
+  "description": "Descripción actualizada",
+  "reference": "REF-UPDATED",
+  "notes": "Notas adicionales de la transacción"
+}
+
+###
+# 29. Intentar actualizar transacción inexistente (debe fallar con 404)
+PUT {{baseUrl}}/99999
+Content-Type: {{contentType}}
+
+{
+  "id": 99999,
+  "description": "Actualización de transacción inexistente"
+}
+
+###
+# 30. Eliminar transacción (soft delete)
+DELETE {{baseUrl}}/{{transactionId}}
+
+###
+# 31. Intentar eliminar transacción inexistente (debe fallar con 404)
+DELETE {{baseUrl}}/99999
+
+###
+# 32. Reversar transacción (recomendado para transacciones financieras)
+POST {{baseUrl}}/{{transactionId}}/reverse
+
+###
+# 33. Intentar reversar transacción inexistente (debe fallar con 404)
+POST {{baseUrl}}/99999/reverse
+
+# ===============================
+# ENDPOINTS PARA ESTADÍSTICAS Y REPORTES
+# ===============================
+
+###
+# 34. Obtener estadísticas por cuenta
+GET {{baseUrl}}/statistics/account/{{accountId}}
+
+###
+# 35. Obtener estadísticas por cuenta inexistente (debe fallar con 404)
+GET {{baseUrl}}/statistics/account/99999
+
+###
+# 36. Obtener estadísticas por rango de fechas
+GET {{baseUrl}}/statistics/date-range?startDate=2024-01-01T00:00:00&endDate=2024-12-31T23:59:59
+
+###
+# 37. Obtener estadísticas con fecha inválida (debe fallar con 400)
+GET {{baseUrl}}/statistics/date-range?startDate=fecha-invalida&endDate=2024-12-31T23:59:59
+
+###
+# 38. Obtener estadísticas generales del sistema
+GET {{baseUrl}}/statistics/general
+
+###
+# 39. Obtener historial completo de transacción
+GET {{baseUrl}}/{{transactionId}}/history
+
+###
+# 40. Obtener historial de transacción inexistente (debe fallar con 404)
+GET {{baseUrl}}/99999/history
+
+# ===============================
+# ENDPOINTS PARA MÉTRICAS Y DASHBOARD
+# ===============================
+
+###
+# 41. Obtener métricas del sistema (dashboard ejecutivo)
+GET {{baseUrl}}/metrics
+
+# ===============================
+# ENDPOINTS PARA BÚSQUEDA AVANZADA
+# ===============================
+
+###
+# 42. Búsqueda avanzada con filtros básicos
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "TRANSFER",
+  "minAmount": 100.00,
+  "maxAmount": 1000.00,
+  "page": 0,
+  "size": 10,
+  "sortBy": "date",
+  "sortDirection": "desc"
+}
+
+###
+# 43. Búsqueda avanzada por rango de fechas
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "startDate": "2024-01-01T00:00:00",
+  "endDate": "2024-12-31T23:59:59",
+  "status": "COMPLETED",
+  "page": 0,
+  "size": 20,
+  "sortBy": "amount",
+  "sortDirection": "desc"
+}
+
+###
+# 44. Búsqueda avanzada por texto
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "searchText": "depósito",
+  "currency": "BOB",
+  "page": 0,
+  "size": 15,
+  "sortBy": "date",
+  "sortDirection": "asc"
+}
+
+###
+# 45. Búsqueda avanzada con múltiples filtros
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "transactionType": "TRANSFER",
+  "minAmount": 50.00,
+  "maxAmount": 500.00,
+  "startDate": "2024-01-01T00:00:00",
+  "endDate": "2024-12-31T23:59:59",
+  "status": "COMPLETED",
+  "currency": "BOB",
+  "searchText": "transferencia",
+  "page": 0,
+  "size": 25,
+  "sortBy": "date",
+  "sortDirection": "desc"
+}
+
+###
+# 46. Búsqueda con parámetros de paginación inválidos (debe fallar con 400)
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "page": -1,
+  "size": 0
+}
+
+# ===============================
+# CASOS DE PRUEBA ADICIONALES
+# ===============================
+
+###
+# 47. Crear transacción con descripción muy larga (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 100.00,
+  "description": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum."
+}
+
+###
+# 48. Crear transacción con referencia muy larga (debe fallar con 400)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 100.00,
+  "description": "Depósito de prueba",
+  "reference": "Esta es una referencia muy larga que excede el límite permitido de 100 caracteres para las referencias de transacciones"
+}
+
+###
+# 49. Crear transacción con monto de muchos decimales (debe truncar o fallar)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 100.123456789,
+  "description": "Depósito con muchos decimales"
+}
+
+###
+# 50. Obtener transacciones con ID de cuenta inválido (debe fallar con 400)
+GET {{baseUrl}}/account/abc
+
+###
+# 51. Actualizar transacción con notas muy largas (debe fallar con 400)
+PUT {{baseUrl}}/{{transactionId}}
+Content-Type: {{contentType}}
+
+{
+  "id": {{transactionId}},
+  "notes": "Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum. Sed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium."
+}
+
+###
+# 52. Búsqueda con monto mínimo mayor que monto máximo
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "minAmount": 1000.00,
+  "maxAmount": 100.00,
+  "page": 0,
+  "size": 10
+}
+
+###
+# 53. Búsqueda con fecha de inicio posterior a fecha de fin
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "startDate": "2024-12-31T23:59:59",
+  "endDate": "2024-01-01T00:00:00",
+  "page": 0,
+  "size": 10
+}
+
+###
+# 54. Transferencia con cuenta origen inexistente (debe fallar con 404)
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": 99999,
+  "targetAccountId": {{targetAccountId}},
+  "amount": 100.00,
+  "description": "Transferencia desde cuenta inexistente"
+}
+
+###
+# 55. Transferencia con cuenta destino inexistente (debe fallar con 404)
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": 99999,
+  "amount": 100.00,
+  "description": "Transferencia a cuenta inexistente"
+}
+
+# ===============================
+# PRUEBAS DE VALIDACIÓN Y CASOS LÍMITE
+# ===============================
+
+###
+# 56. Crear transacción con monto exactamente 0.01 (valor mínimo)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 0.01,
+  "description": "Depósito con monto mínimo"
+}
+
+###
+# 57. Crear transacción con monto muy grande
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 999999999999999.99,
+  "description": "Depósito con monto máximo"
+}
+
+###
+# 58. Búsqueda con tamaño de página máximo
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "page": 0,
+  "size": 100,
+  "sortBy": "date",
+  "sortDirection": "desc"
+}
+
+###
+# 59. Búsqueda con tamaño de página superior al máximo (debe fallar o limitar)
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "page": 0,
+  "size": 1000,
+  "sortBy": "date",
+  "sortDirection": "desc"
+}
+
+###
+# 60. Crear transacción con todos los campos opcionales
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "transactionType": "TRANSFER",
+  "amount": 150.00,
+  "description": "Transferencia completa con todos los campos",
+  "reference": "REF-COMPLETE-001"
+}
+
+###
+# 61. Crear transacción solo con campos obligatorios
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 100.00
+}
+
+###
+# 62. Búsqueda avanzada solo con paginación
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "page": 0,
+  "size": 10
+}
+
+###
+# 63. Búsqueda por estado específico
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "status": "COMPLETED",
+  "page": 0,
+  "size": 20
+}
+
+###
+# 64. Búsqueda por moneda específica
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "currency": "BOB",
+  "page": 0,
+  "size": 15
+}
+
+###
+# 65. Obtener estadísticas con rango de fechas amplio
+GET {{baseUrl}}/statistics/date-range?startDate=2020-01-01T00:00:00&endDate=2030-12-31T23:59:59
+
+###
+# 66. Transferencia con descripción mínima
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "amount": 50.00,
+  "description": "T"
+}
+
+###
+# 67. Depósito sin descripción ni referencia
+POST {{baseUrl}}/deposit
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{accountId}},
+  "amount": 75.00
+}
+
+###
+# 68. Retiro con referencia pero sin descripción
+POST {{baseUrl}}/withdrawal
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{accountId}},
+  "amount": 30.00,
+  "reference": "WIT-NO-DESC"
+}
+
+###
+# 69. Búsqueda con ordenamiento por monto ascendente
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "sortBy": "amount",
+  "sortDirection": "asc",
+  "page": 0,
+  "size": 10
+}
+
+###
+# 70. Búsqueda con ordenamiento por tipo de transacción
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "sortBy": "transactionType",
+  "sortDirection": "asc",
+  "page": 0,
+  "size": 10
+}
+
+# ===============================
+# PRUEBAS DE CONCURRENCIA Y RENDIMIENTO
+# ===============================
+
+###
+# 71. Múltiples transferencias simultáneas (simular con múltiples requests)
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "amount": 10.00,
+  "description": "Transferencia concurrente 1",
+  "reference": "CONC-001"
+}
+
+###
+# 72. Transferencia concurrente 2
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "amount": 15.00,
+  "description": "Transferencia concurrente 2",
+  "reference": "CONC-002"
+}
+
+###
+# 73. Depósitos concurrentes
+POST {{baseUrl}}/deposit
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{accountId}},
+  "amount": 25.00,
+  "description": "Depósito concurrente 1",
+  "reference": "DEP-CONC-001"
+}
+
+###
+# 74. Retiros concurrentes
+POST {{baseUrl}}/withdrawal
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{accountId}},
+  "amount": 20.00,
+  "description": "Retiro concurrente 1",
+  "reference": "WIT-CONC-001"
+}
+
+###
+# 75. Búsqueda con muchos resultados esperados
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "startDate": "2020-01-01T00:00:00",
+  "endDate": "2030-12-31T23:59:59",
+  "page": 0,
+  "size": 50
+}
+
+# ===============================
+# PRUEBAS DE INTEGRIDAD Y VALIDACIÓN DE NEGOCIO
+# ===============================
+
+###
+# 76. Verificar integridad después de transferencia (consultar saldos)
+GET {{baseUrl}}/account/{{sourceAccountId}}
+
+###
+# 77. Verificar historial después de múltiples operaciones
+GET {{baseUrl}}/account/{{accountId}}
+
+###
+# 78. Validar estadísticas después de operaciones
+GET {{baseUrl}}/statistics/account/{{accountId}}
+
+###
+# 79. Crear transacción y verificar inmediatamente
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{accountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 333.33,
+  "description": "Depósito para verificación inmediata",
+  "reference": "VER-001"
+}
+
+###
+# 80. Búsqueda final para verificar todas las transacciones creadas
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "page": 0,
+  "size": 100,
+  "sortBy": "date",
+  "sortDirection": "desc"
+}
+@transactionId = 1
+@sourceAccountId = 1
+@targetAccountId = 2
+@contentType = application/json
+
+###
+# ===============================
+# ENDPOINTS PARA CREAR TRANSACCIONES
+# ===============================
+
+### 1. Crear nueva transacción - DEPOSIT
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 1000.00,
+  "description": "Depósito inicial de prueba",
+  "reference": "DEP001"
+}
+
+###
+# 2. Crear nueva transacción - WITHDRAWAL
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "WITHDRAWAL",
+  "amount": 250.50,
+  "description": "Retiro de efectivo",
+  "reference": "WTH001"
+}
+
+###
+# 3. Crear nueva transacción - TRANSFER
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "transactionType": "TRANSFER",
+  "amount": 500.00,
+  "description": "Transferencia entre cuentas",
+  "reference": "TRF001"
+}
+
+###
+# 4. Crear nueva transacción - PAYMENT
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "PAYMENT",
+  "amount": 150.75,
+  "description": "Pago de servicios",
+  "reference": "PAY001"
+}
+
+###
+# 5. Intentar crear transacción con datos inválidos (monto negativo)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "amount": -100.00,
+  "description": "Depósito con monto negativo"
+}
+
+###
+# 6. Intentar crear transacción con tipo inválido
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "INVALID_TYPE",
+  "amount": 100.00,
+  "description": "Transacción con tipo inválido"
+}
+
+###
+# 7. Intentar crear transacción sin cuenta origen
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "transactionType": "DEPOSIT",
+  "amount": 100.00,
+  "description": "Transacción sin cuenta origen"
+}
+
+###
+# 8. Intentar crear transacción sin monto
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "description": "Transacción sin monto"
+}
+
+###
+# 9. Crear transacción legacy (endpoint legacy)
+POST {{baseUrl}}/legacy
+Content-Type: {{contentType}}
+
+{
+  "sourceAccount": {
+    "id": {{sourceAccountId}}
+  },
+  "transactionType": "DEPOSIT",
+  "amount": 300.00,
+  "description": "Depósito usando endpoint legacy",
+  "status": "COMPLETED",
+  "currency": "BOB"
+}
+
+###
+# ===============================
+# ENDPOINTS PARA CONSULTAR TRANSACCIONES
+# ===============================
+
+### 10. Obtener todas las transacciones
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 11. Obtener transacción por ID existente
+GET {{baseUrl}}/{{transactionId}}
+Accept: {{contentType}}
+
+###
+# 12. Obtener transacción por ID inexistente
+GET {{baseUrl}}/999
+Accept: {{contentType}}
+
+###
+# 13. Obtener transacción por ID inválido
+GET {{baseUrl}}/0
+Accept: {{contentType}}
+
+###
+# 14. Obtener transacciones por cuenta específica
+GET {{baseUrl}}/account/{{sourceAccountId}}
+Accept: {{contentType}}
+
+###
+# 15. Obtener transacciones por cuenta inexistente
+GET {{baseUrl}}/account/999
+Accept: {{contentType}}
+
+###
+# 16. Obtener transacciones por rango de fechas
+GET {{baseUrl}}/date-range?startDate=2024-01-01T00:00:00&endDate=2024-12-31T23:59:59
+Accept: {{contentType}}
+
+###
+# 17. Obtener transacciones por rango de fechas con formato incorrecto
+GET {{baseUrl}}/date-range?startDate=2024-01-01&endDate=2024-12-31
+Accept: {{contentType}}
+
+###
+# 18. Obtener transacciones por tipo - DEPOSIT
+GET {{baseUrl}}/type/DEPOSIT
+Accept: {{contentType}}
+
+###
+# 19. Obtener transacciones por tipo - TRANSFER
+GET {{baseUrl}}/type/TRANSFER
+Accept: {{contentType}}
+
+###
+# 20. Obtener transacciones por tipo - WITHDRAWAL
+GET {{baseUrl}}/type/WITHDRAWAL
+Accept: {{contentType}}
+
+###
+# 21. Obtener transacciones por tipo - PAYMENT
+GET {{baseUrl}}/type/PAYMENT
+Accept: {{contentType}}
+
+###
+# 22. Obtener transacciones por tipo inválido
+GET {{baseUrl}}/type/INVALID_TYPE
+Accept: {{contentType}}
+
+###
+# ===============================
+# ENDPOINTS PARA OPERACIONES FINANCIERAS
+# ===============================
+
+### 23. Procesar transferencia válida
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "amount": 200.00,
+  "description": "Transferencia de prueba",
+  "reference": "TRANSFER_001"
+}
+
+###
+# 24. Intentar transferencia con saldo insuficiente
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "amount": 999999.00,
+  "description": "Transferencia con saldo insuficiente",
+  "reference": "TRANSFER_002"
+}
+
+###
+# 25. Intentar transferencia a la misma cuenta
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{sourceAccountId}},
+  "amount": 100.00,
+  "description": "Transferencia a la misma cuenta",
+  "reference": "TRANSFER_003"
+}
+
+###
+# 26. Intentar transferencia sin cuenta destino
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "amount": 100.00,
+  "description": "Transferencia sin cuenta destino"
+}
+
+###
+# 27. Procesar depósito válido
+POST {{baseUrl}}/deposit
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{sourceAccountId}},
+  "amount": 500.00,
+  "description": "Depósito en cuenta",
+  "reference": "DEPOSIT_001"
+}
+
+###
+# 28. Intentar depósito con monto cero
+POST {{baseUrl}}/deposit
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{sourceAccountId}},
+  "amount": 0.00,
+  "description": "Depósito con monto cero"
+}
+
+###
+# 29. Intentar depósito en cuenta inexistente
+POST {{baseUrl}}/deposit
+Content-Type: {{contentType}}
+
+{
+  "accountId": 999,
+  "amount": 100.00,
+  "description": "Depósito en cuenta inexistente"
+}
+
+###
+# 30. Procesar retiro válido
+POST {{baseUrl}}/withdrawal
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{sourceAccountId}},
+  "amount": 75.25,
+  "description": "Retiro de efectivo",
+  "reference": "WITHDRAWAL_001"
+}
+
+###
+# 31. Intentar retiro con saldo insuficiente
+POST {{baseUrl}}/withdrawal
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{sourceAccountId}},
+  "amount": 999999.00,
+  "description": "Retiro con saldo insuficiente"
+}
+
+###
+# 32. Intentar retiro en cuenta inexistente
+POST {{baseUrl}}/withdrawal
+Content-Type: {{contentType}}
+
+{
+  "accountId": 999,
+  "amount": 50.00,
+  "description": "Retiro en cuenta inexistente"
+}
+
+###
+# ===============================
+# ENDPOINTS PARA GESTIÓN DE TRANSACCIONES
+# ===============================
+
+### 33. Actualizar transacción existente
+PUT {{baseUrl}}/{{transactionId}}
+Content-Type: {{contentType}}
+
+{
+  "id": {{transactionId}},
+  "description": "Descripción actualizada de la transacción",
+  "reference": "REF_UPDATED",
+  "notes": "Notas adicionales agregadas después de la creación"
+}
+
+###
+# 34. Intentar actualizar transacción inexistente
+PUT {{baseUrl}}/999
+Content-Type: {{contentType}}
+
+{
+  "id": 999,
+  "description": "Descripción para transacción inexistente"
+}
+
+###
+# 35. Intentar actualizar con datos inválidos
+PUT {{baseUrl}}/{{transactionId}}
+Content-Type: {{contentType}}
+
+{
+  "id": {{transactionId}},
+  "description": "Esta es una descripción extremadamente larga que supera los 255 caracteres permitidos. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat."
+}
+
+###
+# 36. Actualizar solo las notas de la transacción
+PUT {{baseUrl}}/{{transactionId}}
+Content-Type: {{contentType}}
+
+{
+  "id": {{transactionId}},
+  "notes": "Solo actualización de notas"
+}
+
+###
+# 37. Actualizar solo la referencia de la transacción
+PUT {{baseUrl}}/{{transactionId}}
+Content-Type: {{contentType}}
+
+{
+  "id": {{transactionId}},
+  "reference": "NEW_REF_123"
+}
+
+###
+# 38. Eliminar transacción
+DELETE {{baseUrl}}/{{transactionId}}
+Accept: {{contentType}}
+
+###
+# 39. Intentar eliminar transacción inexistente
+DELETE {{baseUrl}}/999
+Accept: {{contentType}}
+
+###
+# 40. Intentar eliminar transacción con ID inválido
+DELETE {{baseUrl}}/0
+Accept: {{contentType}}
+
+###
+# 41. Reversar transacción
+POST {{baseUrl}}/{{transactionId}}/reverse
+Accept: {{contentType}}
+
+###
+# 42. Intentar reversar transacción inexistente
+POST {{baseUrl}}/999/reverse
+Accept: {{contentType}}
+
+###
+# ===============================
+# ENDPOINTS PARA ESTADÍSTICAS Y REPORTES
+# ===============================
+
+### 43. Obtener estadísticas por cuenta específica
+GET {{baseUrl}}/statistics/account/{{sourceAccountId}}
+Accept: {{contentType}}
+
+###
+# 44. Obtener estadísticas por cuenta inexistente
+GET {{baseUrl}}/statistics/account/999
+Accept: {{contentType}}
+
+###
+# 45. Obtener estadísticas por rango de fechas
+GET {{baseUrl}}/statistics/date-range?startDate=2024-01-01T00:00:00&endDate=2024-12-31T23:59:59
+Accept: {{contentType}}
+
+###
+# 46. Obtener estadísticas con fechas inválidas
+GET {{baseUrl}}/statistics/date-range?startDate=fecha-invalida&endDate=2024-12-31T23:59:59
+Accept: {{contentType}}
+
+###
+# 47. Obtener estadísticas generales del sistema
+GET {{baseUrl}}/statistics/general
+Accept: {{contentType}}
+
+###
+# 48. Obtener historial de transacción específica
+GET {{baseUrl}}/{{transactionId}}/history
+Accept: {{contentType}}
+
+###
+# 49. Obtener historial de transacción inexistente
+GET {{baseUrl}}/999/history
+Accept: {{contentType}}
+
+###
+# ===============================
+# ENDPOINTS PARA MÉTRICAS Y DASHBOARD
+# ===============================
+
+### 50. Obtener métricas del sistema
+GET {{baseUrl}}/metrics
+Accept: {{contentType}}
+
+###
+# ===============================
+# ENDPOINTS PARA BÚSQUEDA AVANZADA
+# ===============================
+
+### 51. Búsqueda avanzada - Filtros básicos
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "minAmount": 100.00,
+  "maxAmount": 1000.00,
+  "status": "COMPLETED",
+  "currency": "BOB",
+  "page": 0,
+  "size": 10,
+  "sortBy": "date"
+}
+
+###
+# 52. Búsqueda avanzada - Por rango de fechas
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "startDate": "2024-01-01T00:00:00",
+  "endDate": "2024-12-31T23:59:59",
+  "page": 0,
+  "size": 20,
+  "sortBy": "amount"
+}
+
+###
+# 53. Búsqueda avanzada - Por texto en descripción
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "searchText": "pago servicios",
+  "page": 0,
+  "size": 10,
+  "sortBy": "transactionType"
+}
+
+###
+# 54. Búsqueda avanzada - Filtros múltiples
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "transactionType": "TRANSFER",
+  "minAmount": 50.00,
+  "maxAmount": 500.00,
+  "startDate": "2024-01-01T00:00:00",
+  "endDate": "2024-12-31T23:59:59",
+  "status": "COMPLETED",
+  "currency": "BOB",
+  "searchText": "transferencia",
+  "page": 0,
+  "size": 15,
+  "sortBy": "date"
+}
+
+###
+# 55. Búsqueda avanzada - Parámetros de paginación inválidos
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "page": -1,
+  "size": 200
+}
+
+###
+# 56. Búsqueda avanzada - Montos inválidos
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "minAmount": -100.00,
+  "maxAmount": -50.00
+}
+
+###
+# ===============================
+# CASOS EDGE Y VALIDACIONES
+# ===============================
+
+### 57. Crear transacción con descripción máxima (255 caracteres)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 100.00,
+  "description": "Esta es una descripción que tiene exactamente 255 caracteres para probar el límite máximo permitido en el campo descripción de la transacción. Lorem ipsum dolor sit amet consectetur adipiscing elit sed do eiusmod tem.",
+  "reference": "MAX_DESC"
+}
+
+###
+# 58. Crear transacción con referencia máxima (100 caracteres)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 100.00,
+  "description": "Transacción con referencia máxima",
+  "reference": "REF_1234567890123456789012345678901234567890123456789012345678901234567890123456789012345678901234"
+}
+
+###
+# 59. Crear transacción con monto mínimo válido (0.01)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 0.01,
+  "description": "Transacción con monto mínimo",
+  "reference": "MIN_AMOUNT"
+}
+
+###
+# 60. Crear transacción con monto máximo de precisión (15 dígitos enteros, 2 decimales)
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 123456789012345.99,
+  "description": "Transacción con monto máximo de precisión",
+  "reference": "MAX_PRECISION"
+}
+
+###
+# 61. Intentar crear transacción con monto con más de 2 decimales
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 100.999,
+  "description": "Transacción con decimales inválidos"
+}
+
+###
+# 62. Crear transferencia con descripción y referencia vacías
+POST {{baseUrl}}/transfer
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "targetAccountId": {{targetAccountId}},
+  "amount": 50.00,
+  "description": "",
+  "reference": ""
+}
+
+###
+# 63. Crear depósito sin descripción ni referencia
+POST {{baseUrl}}/deposit
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{sourceAccountId}},
+  "amount": 100.00
+}
+
+###
+# 64. Crear retiro con solo descripción
+POST {{baseUrl}}/withdrawal
+Content-Type: {{contentType}}
+
+{
+  "accountId": {{sourceAccountId}},
+  "amount": 25.50,
+  "description": "Retiro con solo descripción"
+}
+
+###
+# 65. Actualizar transacción con notas máximas (500 caracteres)
+PUT {{baseUrl}}/{{transactionId}}
+Content-Type: {{contentType}}
+
+{
+  "id": {{transactionId}},
+  "notes": "Estas son notas que tienen exactamente 500 caracteres para probar el límite máximo permitido en el campo notas de la transacción. Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui."
+}
+
+###
+# ===============================
+# PRUEBAS DE CONCURRENCIA Y CARGA
+# ===============================
+
+### 66. Crear múltiples transacciones simultáneas - Transacción 1
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 100.00,
+  "description": "Transacción concurrente 1",
+  "reference": "CONCURRENT_1"
+}
+
+###
+# 67. Crear múltiples transacciones simultáneas - Transacción 2
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 150.00,
+  "description": "Transacción concurrente 2",
+  "reference": "CONCURRENT_2"
+}
+
+###
+# 68. Crear múltiples transacciones simultáneas - Transacción 3
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "WITHDRAWAL",
+  "amount": 50.00,
+  "description": "Transacción concurrente 3",
+  "reference": "CONCURRENT_3"
+}
+
+###
+# ===============================
+# PRUEBAS DE INTEGRIDAD Y CONSISTENCIA
+# ===============================
+
+### 69. Verificar saldo después de operaciones múltiples
+GET {{baseUrl}}/account/{{sourceAccountId}}
+Accept: {{contentType}}
+
+###
+# 70. Verificar historial completo de transacciones de la cuenta
+GET {{baseUrl}}/account/{{sourceAccountId}}
+Accept: {{contentType}}
+
+###
+# 71. Obtener estadísticas finales de la cuenta
+GET {{baseUrl}}/statistics/account/{{sourceAccountId}}
+Accept: {{contentType}}
+
+###
+# 72. Obtener métricas generales del sistema después de todas las operaciones
+GET {{baseUrl}}/metrics
+Accept: {{contentType}}
+
+###
+# ===============================
+# PRUEBAS DE REVERSIÓN Y ROLLBACK
+# ===============================
+
+### 73. Crear transacción para reversar
+POST {{baseUrl}}
+Content-Type: {{contentType}}
+
+{
+  "sourceAccountId": {{sourceAccountId}},
+  "transactionType": "DEPOSIT",
+  "amount": 300.00,
+  "description": "Transacción para reversar",
+  "reference": "TO_REVERSE"
+}
+
+###
+# 74. Reversar la transacción creada anteriormente
+POST {{baseUrl}}/5/reverse
+Accept: {{contentType}}
+
+###
+# 75. Verificar que la reversión se registró correctamente
+GET {{baseUrl}}/5/history
+Accept: {{contentType}}
+
+###
+# ===============================
+# ESTADO FINAL DEL SISTEMA
+# ===============================
+
+### 76. Obtener todas las transacciones para verificar estado final
+GET {{baseUrl}}
+Accept: {{contentType}}
+
+###
+# 77. Obtener estadísticas generales finales
+GET {{baseUrl}}/statistics/general
+Accept: {{contentType}}
+
+###
+# 78. Obtener métricas completas del sistema
+GET {{baseUrl}}/metrics
+Accept: {{contentType}}
+
+###
+# 79. Búsqueda final con todos los filtros
+POST {{baseUrl}}/search
+Content-Type: {{contentType}}
+
+{
+  "page": 0,
+  "size": 100,
+  "sortBy": "date"
+}
+
+###
+# 80. Verificar transacciones por tipo - resumen final
+GET {{baseUrl}}/type/DEPOSIT
+Accept: {{contentType}}
